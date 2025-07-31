@@ -3,7 +3,10 @@ let resultados = '';
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    const usuario = sessionStorage.getItem('usuario');
+    const usuariosAutorizados = ['aguapacha', 'jotero', 'cifuentm', 'fabian', 'salvarad', 'jdiaz'];
     const token = sessionStorage.getItem('token');
+    const paginaActual = window.location.pathname;
 
     if (!token) {
         Swal.fire({
@@ -15,7 +18,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }).then(() => {
             window.location.href = '../pages/sign-in.html';
         });
+        return;
     }
+
+    // 🔒 Bloquear acceso si está en auditoria.html
+    if (paginaActual.includes('auditoria.html') && !usuariosAutorizados.includes(usuario)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso denegado',
+            text: 'No tienes permisos para ver esta página.'
+        }).then(() => {
+            window.location.href = '/pages/dashboard.html';
+        });
+        return;
+    }
+
+    // 👁️ Ocultar módulo desde el menú (solo en dashboard u otras páginas donde aparezca)
+    const moduloAuditoria = document.getElementById('moduloAuditoria');
+    if (moduloAuditoria && !usuariosAutorizados.includes(usuario)) {
+        moduloAuditoria.style.display = 'none';
+    }
+
     Swal.fire({
         title: 'Cargando información...',
         text: 'Por favor espera un momento.',
@@ -36,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(error);
     });
 });
-
 
 async function obtenerasociadosResumen() {
     try {

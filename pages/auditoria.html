@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="../assets/img/fonditoelegant.png">
   <title>
-    COOPSERP | CC - Resumen
+    COOPSERP | CC - Auditoria
   </title>
   <!-- Fonts and icons -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
@@ -64,19 +64,17 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active bg-dark text-white" href="../pages/resumen.html">
+          <a class="nav-link text-dark" href="../pages/resumen.html">
             <i class="material-symbols-rounded opacity-5">table_view</i>
             <span class="nav-link-text ms-1">Cartera Castigada | Resumen</span>
           </a>
         </li>
-        <li class="nav-item" id="moduloAuditoria">
-          <a class="nav-link text-dark" href="../pages/auditoria.html">
+        <li class="nav-item">
+          <a class="nav-link active bg-dark text-white" href="../pages/auditoria.html">
             <i class="fas fa-user-shield opacity-6 me-2"></i>
             <span class="nav-link-text ms-1">Auditoría</span>
           </a>
         </li>
-
-
       </ul>
     </div>
     <div class="sidenav-footer position-absolute w-100 bottom-0 ">
@@ -94,7 +92,7 @@
           <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
             <li class="breadcrumb-item text-sm text-white fw-bold"><a class="opacity-5 text-white"
                 href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-white fw-bold active" aria-current="page">Resumen</li>
+            <li class="breadcrumb-item text-sm text-white fw-bold active" aria-current="page">Auditoria</li>
           </ol>
         </nav>
 
@@ -114,75 +112,29 @@
         </div>
       </div>
       <div class="row mb-4 mt-5">
-        <div class="col-lg-6 col-md-6 mb-md-0 mb-4">
+        <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
           <div class="card">
             <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
               <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                <h4 class="text-white text-capitalize ps-3">Agencias</h4>
+                <h4 class="text-white text-capitalize ps-3">Auditoria</h4>
               </div>
             </div>
             <div class="card-body px-0 pb-2">
               <div class="table-responsive">
-                <table id="tablaCastigados" class="table table-striped" style="width:100%">
+                <table id="tablaAuditoria" class="table table-striped" style="width:100%">
                   <thead>
                     <tr>
-                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Agencia</th>
-                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Cuentas</th>
-                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Valor Total Castigos
+                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">#</th>
+                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Usuario</th>
+                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Acciones
                       </th>
-                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Acciones</th>
+                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">IP</th>
+                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Fecha - Hora</th>
                     </tr>
                   </thead>
                   <tbody>
                   </tbody>
                 </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 col-md-6 mb-md-0 mb-4">
-          <div class="fixed-resumen">
-            <div class="card">
-              <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                  <h4 class="text-white text-capitalize ps-3">Resumen</h4>
-                </div>
-              </div>
-              <div class="card-body px-0 pb-2">
-                <div class="table-responsive px-3 pt-3">
-                  <table class="table table-bordered mb-0" id="tablaTotalesZonas">
-                    <thead class="bg-light">
-                      <tr>
-                        <th class="text-center text-uppercase text-dark text-sm">Zona Jurídica</th>
-                        <th class="text-center text-uppercase text-dark text-sm">Total Cuentas</th>
-                        <th class="text-center text-uppercase text-dark text-sm">Valor Total Castigos</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>JURIDICO ZONA NORTE</td>
-                        <td class="text-center" id="cuentasNorte">0</td>
-                        <td class="text-end" id="valorNorte">$ 0</td>
-                      </tr>
-                      <tr>
-                        <td>JURIDICO ZONA CENTRO</td>
-                        <td class="text-center" id="cuentasCentro">0</td>
-                        <td class="text-end" id="valorCentro">$ 0</td>
-                      </tr>
-                      <tr>
-                        <td>JURIDICO ZONA SUR</td>
-                        <td class="text-center" id="cuentasSur">0</td>
-                        <td class="text-end" id="valorSur">$ 0</td>
-                      </tr>
-                      <tr class="table-danger">
-                        <th>TOTAL GENERAL</th>
-                        <th class="text-center" id="cuentasTotal">0</th>
-                        <th class="text-end" id="valorTotal">$ 0</th>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
               </div>
             </div>
           </div>
@@ -219,39 +171,6 @@
   </main>
 
 
-  <!-- Modal para detalles del asociado -->
-  <div class="modal fade" id="modalDetalleAsociado" tabindex="-1" aria-labelledby="modalDetalleAsociadoLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header bg-dark text-white">
-          <h5 class="modal-title" id="modalDetalleAsociadoLabel">Detalles del Castigo por Agencia</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body" id="contenidoModalAsociado">
-          <div class="table-responsive">
-            <table class="table table-striped" id="tablaDetallesAsociado" style="width:100%">
-              <thead>
-                <tr>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">AGENCIA</th>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">ZONA JURÍDICA</th>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">CEDULA</th>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">NOMBRE</th>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">CUENTA</th>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">NÓMINA</th>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">VALOR CASTIGADO</th>
-                  <th class="text-center text-uppercase text-dark text-md font-weight-bolder">FECHA CASTIGO</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
 
   <!-- jQuery (necesario para DataTables) -->
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -272,12 +191,12 @@
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
   <!--   Core JS Files   -->
-  <script src="../js/resumen.js"></script>
   <script src="../assets/js/core/popper.min.js"></script>
   <script src="../assets/js/core/bootstrap.min.js"></script>
   <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
   <script src="../assets/js/plugins/chartjs.min.js"></script>
+  <script src="../js/auditoria.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
