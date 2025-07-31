@@ -1,0 +1,48 @@
+#tablaCastigados {
+  font-size: 0.95rem; 
+  table-layout: auto; 
+  white-space: nowrap; 
+}
+
+#tablaCastigados th,
+#tablaCastigados td {
+  padding: 4px 8px; /* Reduce el espacio interno */
+  vertical-align: middle;
+}
+
+@media (max-width: 1200px) {
+  #tablaCastigados {
+    font-size: 0.95rem;
+  }
+}
+
+
+.modal-dialog {
+    position: absolute;
+    left: 5%;
+    transform: translateX(-50%);
+    width: 90%; 
+    max-width: none; 
+}
+
+.modal-content {
+    width: 100%; 
+}
+
+
+.fixed-resumen {
+  position: fixed;
+  top: 145px;
+  right: 20px;
+  width: 42%;
+  z-index: 1060;
+}
+
+
+@media (max-width: 992px) {
+  .fixed-resumen {
+    position: static; /* Ya no se fija */
+    width: 100%; /* Ocupa todo el ancho disponible */
+    margin-top: 20px;
+  }
+}

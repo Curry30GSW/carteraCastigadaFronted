@@ -1,0 +1,142 @@
+.footer {
+    background: linear-gradient(135deg, #003731 0%, #005E56 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+.footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #fdc830, #f37335, #00d2ff, #3a7bd5);
+    background-size: 300% 300%;
+    animation: rainbow-border 4s ease infinite;
+}
+
+@keyframes rainbow-border {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.copyright-text {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 2;
+}
+
+.powered-by {
+    color: rgba(255, 255, 255, 0.8);
+    font-style: italic;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.guapacha-container {
+    position: relative;
+    display: inline-block;
+}
+
+.guapacha-badge {
+    position: relative;
+    z-index: 3;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffb347;
+    animation: text-glow 2s ease-in-out infinite alternate;
+    text-shadow: 0 0 5px #ffb347, 0 0 10px #e52e71;
+}
+
+@keyframes text-glow {
+    from { text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 69, 0, 0.5); }
+    to { text-shadow: 0 0 10px gold, 0 0 20px orange, 0 0 30px orangered; }
+}
+
+
+.fa-crown, .fa-bolt {
+    color: gold;
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.7));
+    animation: float 3s ease-in-out infinite;
+}
+
+.fa-bolt {
+    animation: bolt-shake 0.3s linear infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes bolt-shake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-2px) rotate(-5deg); }
+    75% { transform: translateX(2px) rotate(5deg); }
+}
+
+/* Nuevo efecto de tormenta de rayos */
+.lightning-storm {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.lightning-storm::before,
+.lightning-storm::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 0;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.9) 30%, 
+        transparent 70%);
+    top: -20px;
+    left: 20%;
+    animation: lightning-drop 3s linear infinite;
+}
+
+.lightning-storm::after {
+    left: 50%;
+    animation-delay: 0.8s;
+}
+
+.lightning-storm span {
+    position: absolute;
+    width: 2px;
+    height: 0;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.9) 30%, 
+        transparent 70%);
+    top: -20px;
+    left: 80%;
+    animation: lightning-drop 3s linear infinite;
+    animation-delay: 1.6s;
+}
+
+@keyframes lightning-drop {
+    0% { height: 0; top: -20px; opacity: 0; }
+    10% { height: 30px; opacity: 0.8; }
+    20% { height: 60px; opacity: 0.5; }
+    30% { height: 90px; opacity: 0.3; }
+    40% { height: 120px; opacity: 0.1; }
+    50%, 100% { height: 150px; top: 150px; opacity: 0; }
+}
+
+.version {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-style: italic;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}

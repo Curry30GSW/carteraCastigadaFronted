@@ -1,0 +1,897 @@
+
+        .expediente-juridico {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .encabezado-documento {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #d1d5db;
+            padding: 1.5rem;
+        }
+        
+        .membrete {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-institucion {
+            color: #8b0000;
+        }
+        
+        .titulo-documento {
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .titulo-documento h3 {
+            color: #8b0000;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .numero-expediente {
+            font-size: 0.9rem;
+            color: #000000;
+            margin: 0;
+        }
+        
+        .sello {
+            background-color: #8b0000;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            transform: rotate(5deg);
+        }
+        
+        .datos-encabezado {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .codigo-barras {
+            font-family: 'Libre Barcode 39', cursive;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            color:#000000;
+            font-weight: bold;
+        }
+        
+        .cuerpo-expediente {
+            padding: 1.5rem;
+        }
+        
+        .seccion-expediente {
+            margin-bottom: 2rem;
+        }
+        
+        .titulo-seccion {
+            color: #8b0000;
+            border-bottom: 2px solid #d1d5db;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .grid-datos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .dato-legal {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .etiqueta {
+            font-weight: 600;
+            color: #000000;
+            min-width: 120px;
+        }
+        
+        .valor {
+            color: #000000;
+        }
+        
+        .estado-activo {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .estado-inactivo {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .partes-proceso {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .tarjeta-parte {
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .parte-header {
+            background-color: #f1f1f1;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #d1d5db;
+        }
+        
+        .parte-header h5 {
+            margin: 0;
+            font-size: 1rem;
+            color: #444;
+        }
+        
+        .parte-body {
+            padding: 1rem;
+        }
+        
+        .info-parte {
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .campo {
+            font-weight: 600;
+            color: #000000;
+            min-width: 100px;
+        }
+        
+        .abogado .parte-header {
+            background-color: #e3f2fd;
+        }
+        
+        .demandado .parte-header {
+            background-color: #ffebee;
+        }
+        
+        .no-asignado {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #6c757d;
+        }
+        
+        .no-asignado i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+        }
+        
+        .medida-cautelar {
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .medida-header {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #d1d5db;
+        }
+        
+        .medida-header h5 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        .badge-estado {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+        
+        .badge-estado.activa {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-estado.inactiva {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .medida-body {
+            padding: 1rem;
+        }
+        
+        .sin-medidas {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            border: 1px dashed #d1d5db;
+            border-radius: 5px;
+        }
+        
+        .sin-medidas i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+        }
+        
+        .historial {
+            border-left: 2px solid #d1d5db;
+            padding-left: 1.5rem;
+            margin-left: 0.75rem;
+        }
+        
+        .evento-historial {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        
+        .evento-historial:last-child {
+            padding-bottom: 0;
+        }
+        
+        .evento-historial::before {
+            content: '';
+            position: absolute;
+            left: -1.7rem;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #8b0000;
+            border: 2px solid white;
+        }
+        
+        .fecha-evento {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.25rem;
+        }
+        
+        .titulo-evento {
+            font-weight: 600;
+            color: #222;
+            display: block;
+        }
+        
+        .descripcion-evento {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .pie-documento {
+            background-color: #f8f9fa;
+            border-top: 2px solid #d1d5db;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        
+        .firma-digital {
+            text-align: center;
+        }
+        
+        .linea-firma {
+            width: 200px;
+            height: 1px;
+            background-color: #333;
+            margin: 0 auto 0.5rem;
+        }
+        
+        .firma-digital p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .firma-digital small {
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .codigo-consulta {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #555;
+        }
+    
+
+        .lista-medidas {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.lista-medidas li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #333;
+    border-bottom: 1px dashed #d1d5db;
+}
+
+.lista-medidas li i {
+    color: #28a745;
+    margin-right: 0.5rem;
+}
+
+
+.valor-vencido {
+    grid-column: 1 / -1; /* Para que ocupe toda la fila si estás usando grid */
+    padding: 10px;
+    background-color: #ffe5e5;
+    border: 2px solid #ff0000;
+    color: #b30000;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    animation: blink 1s infinite;
+    border-radius: 8px;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+
+.expediente-juridico {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .encabezado-documento {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #d1d5db;
+            padding: 1.5rem;
+        }
+        
+        .membrete {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-institucion {
+            color: #8b0000;
+        }
+        
+        .titulo-documento {
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .titulo-documento h3 {
+            color: #8b0000;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .numero-expediente {
+            font-size: 1.3rem;
+            color: #000000;
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        .sello {
+            background-color: #8b0000;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            transform: rotate(5deg);
+        }
+        
+        .datos-encabezado {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .codigo-barras {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+        
+        .cuerpo-expediente {
+            padding: 1.5rem;
+        }
+        
+        .seccion-expediente {
+            margin-bottom: 2rem;
+        }
+        
+        .titulo-seccion {
+            color: #8b0000;
+            border-bottom: 2px solid #d1d5db;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .grid-datos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .dato-legal {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .etiqueta {
+            font-weight: 600;
+            color: #000000;
+            min-width: 150px;
+        }
+        
+        .valor {
+            color: #222;
+        }
+        
+        .resumen-financiero {
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .dato-financiero {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .dato-financiero:last-child {
+            border-bottom: none;
+        }
+        
+        .dato-financiero.total {
+            background-color: #f8d7da;
+            font-weight: 600;
+        }
+        
+        .concepto {
+            color: #000000;
+        }
+        
+        .monto {
+            font-weight: 500;
+        }
+        
+        .card.referencia {
+            margin-bottom: 1rem;
+        }
+        
+        .card.referencia .card-header {
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+        }
+        
+        .info-referencia {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .sin-referencias {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+        .sin-referencias i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+        }
+        
+        .pie-documento {
+            background-color: #f8f9fa;
+            border-top: 2px solid #d1d5db;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        
+        .firma-digital {
+            text-align: center;
+        }
+        
+        .linea-firma {
+            width: 200px;
+            height: 1px;
+            background-color: #333;
+            margin: 0 auto 0.5rem;
+        }
+        
+        .firma-digital p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .firma-digital small {
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .codigo-consulta {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .monto-blink {
+    color: #b30000;
+    font-weight: bold;
+    animation: parpadeo 1s infinite;
+    background-color: #ffe5e5;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+@keyframes parpadeo {
+    0% { opacity: 1; }
+    50% { opacity: 0.2; }
+    100% { opacity: 1; }
+}
+
+
+.modal-blur {
+  filter: blur(4px);
+  pointer-events: none; /* Para que no se pueda hacer clic en ella */
+  transition: filter 0.3s ease;
+}
+
+
+
+/* Estilos para el modal de gestiones */
+.expediente-gestiones {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.encabezado-documento {
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+}
+
+.membrete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.logo-institucion {
+    color: #3a7bd5;
+}
+
+.titulo-documento {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.titulo-documento h3 {
+    color: #3a7bd5;
+    margin-bottom: 5px;
+}
+
+.numero-expediente {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.sello {
+    border: 2px dashed #ffffff;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sello-content {
+    transform: rotate(-15deg);
+    color: #ffffff;
+    font-weight: bold;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.datos-encabezado {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+/* Timeline de gestiones */
+.timeline-gestiones {
+    position: relative;
+    padding-left: 30px;
+    margin-top: 20px;
+}
+
+.timeline-gestiones::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+}
+
+.evento-gestion {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.ultima-gestion {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    border-left: 3px solid #8b0000;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #8b0000;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.timeline-marker i {
+    font-size: 0.7rem;
+}
+
+.timeline-content {
+    margin-left: 15px;
+}
+
+.fecha-gestion {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+
+.timeline-header h5 {
+    color: #3a7bd5;
+    margin-bottom: 2;
+    font-size: 1.3rem;
+}
+
+.fecha-gestion {
+    font-size: 1.0rem;
+    color: #080808;
+}
+
+.timeline-body {
+    background: white;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    width: 600px;
+}
+
+.descripcion-gestion {
+    background-color: #f8f9fa;
+    border-left: 3px solid #3a7bd5;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+}
+
+.descripcion-gestion p {
+    margin-bottom: 0;
+}
+
+.metadatos-gestion {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Pie de documento */
+.pie-documento {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 0.8rem;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+}
+
+.firma-digital {
+    text-align: center;
+}
+
+.linea-firma {
+    width: 200px;
+    border-top: 1px solid #666;
+    margin: 5px auto;
+}
+
+/* Estados y efectos */
+.sin-gestiones {
+    opacity: 0.7;
+}
+
+.error-carga {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+/* Estilos solo para la nueva sección de créditos */
+.creditos-detallados-horizontal {
+    margin-bottom: 30px;
+}
+
+.contenedor-cards-horizontal {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: #3a7bd5 #f1f1f1;
+}
+
+.tarjeta-credito-horizontal {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-width: 280px;
+    flex: 0 0 auto;
+}
+
+.encabezado-credito {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.numero-credito {
+    font-weight: bold;
+    color: #3a7bd5;
+}
+
+.tipo-credito {
+    background-color: #3a7bd5;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.detalle-credito {
+    padding: 15px;
+}
+
+.fila-detalle {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.fila-detalle.total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #e0e0e0;
+    font-weight: bold;
+}
+
+.subtitulo-seccion {
+    color: #3a7bd5;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sin-creditos {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+    width: 100%;
+}
+
+/* Estilos para scrollbar (opcional) */
+.contenedor-cards-horizontal::-webkit-scrollbar {
+    height: 8px;
+}
+
+.contenedor-cards-horizontal::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.contenedor-cards-horizontal::-webkit-scrollbar-thumb {
+    background-color: #3a7bd5;
+    border-radius: 10px;
+}
+
+
+#tablaCastigados {
+  font-size: 0.85rem; 
+  table-layout: auto; 
+  white-space: nowrap; 
+}
+
+#tablaCastigados th,
+#tablaCastigados td {
+  padding: 2px 6px; /* Reduce el espacio interno */
+  vertical-align: middle;
+}
+
+@media (max-width: 1200px) {
+  #tablaCastigados {
+    font-size: 0.85rem;
+  }
+}
+
+
