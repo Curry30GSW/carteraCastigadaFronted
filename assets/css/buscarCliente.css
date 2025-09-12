@@ -1,0 +1,265 @@
+/* Estilos para la tarjeta de información del cliente */
+#datosCliente .card {
+    background: linear-gradient(135deg, #ffffff 0%, #f5fffe 100%);
+    border-left: 4px solid #005E56 !important;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 94, 86, 0.15);
+}
+
+#datosCliente .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 94, 86, 0.2);
+}
+
+#datosCliente .card-body {
+    padding: 1.5rem;
+}
+
+#datosCliente h6 {
+    color: #005E56;
+    font-size: 1.1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e0f2f0;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+#datosCliente h6 i {
+    color: #005E56;
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+/* Contenedor de dos columnas */
+#datosCliente .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+#datosCliente .info-item {
+    margin-bottom: 0.85rem;
+    padding: 0.30rem;
+    border-radius: 8px;
+    background-color: rgba(0, 94, 86, 0.05);
+    transition: all 0.2s ease;
+}
+
+#datosCliente .info-item:hover {
+    background-color: rgba(0, 94, 86, 0.08);
+    transform: translateX(3px);
+}
+
+#datosCliente strong {
+    color: #005E56;
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+}
+
+#clienteAgencia,
+#clienteNombre,
+#clienteCedula,
+#clienteCuenta,
+#clienteNomina,
+#clienteValorCastigado {
+    color: #005E56;
+    font-weight: 500;
+    display: block;
+    padding: 0.3rem 0;
+    border-radius: 4px;
+}
+
+#clienteValorCastigado {
+    color: #d9534f;
+    font-weight: 600;
+}
+
+/* Animación de aparición */
+#datosCliente {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    #datosCliente .card-body {
+        padding: 1.25rem;
+    }
+    
+    #datosCliente .info-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    #datosCliente .info-item {
+        padding: 0.6rem;
+    }
+}
+
+
+
+/* Estilos para el área de gestión */
+#areaGestion {
+    animation: fadeIn 0.6s ease-out;
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f5fffe 100%);
+    border-radius: 12px;
+    border-left: 4px solid #005E56;
+    box-shadow: 0 5px 20px rgba(0, 94, 86, 0.1);
+}
+
+#areaGestion .form-label {
+    color: #005E56;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+#areaGestion .form-label:before {
+    content: "\f0ce";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    margin-right: 0.5rem;
+    color: #005E56;
+}
+
+#textoGestion {
+    border: 1px solid #cdeae7;
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: inset 0 2px 4px rgba(0, 94, 86, 0.08);
+}
+
+#textoGestion:focus {
+    border-color: #005E56;
+    box-shadow: 0 0 0 0.25rem rgba(0, 94, 86, 0.2), inset 0 2px 4px rgba(0, 94, 86, 0.08);
+    outline: none;
+}
+
+#textoGestion::placeholder {
+    color: #88c0b9;
+    font-style: italic;
+}
+
+/* Contador de caracteres */
+.char-counter {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #88c0b9;
+    margin-top: 0.5rem;
+}
+
+.char-counter.limit {
+    color: #d9534f;
+    font-weight: 500;
+}
+
+/* Estilo para cuando hay texto */
+#textoGestion.has-text {
+    background-color: #f8fdfc;
+    border-color: #005E56;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    #areaGestion {
+        padding: 1.25rem;
+    }
+    
+    #textoGestion {
+        padding: 0.75rem;
+    }
+}
+
+
+.has-text {
+    border-color: #198754; /* verde cuando hay texto */
+}
+
+.text-danger {
+    color: red !important;
+}
+
+
+#modalCrearGestion .search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#modalCrearGestion .search-bar {
+    background: #fff;
+    border-radius: 50px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(16, 143, 58, 0.3);
+}
+
+#modalCrearGestion .search-bar input {
+    border: none !important;
+    outline: none;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: transparent;
+    flex: 1;
+}
+
+#modalCrearGestion .search-bar button {
+    background: #ffc107;
+    border: none;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+#modalCrearGestion .search-bar button i {
+    font-size: 1.2rem;
+}
+
+#modalCrearGestion .search-bar button:hover {
+    background: #005E56;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ffffff;
+}
+
+
+.swal2-container {
+  z-index: 20000 !important; /* Más alto que el modal de Bootstrap */
+}

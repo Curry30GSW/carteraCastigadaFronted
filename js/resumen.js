@@ -4,7 +4,7 @@ let resultados = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     const usuario = sessionStorage.getItem('usuario');
-    const usuariosAutorizados = ['aguapacha', 'jotero', 'cifuentm', 'fabian', 'salvarad', 'jdiaz'];
+    const usuariosAutorizados = ['aguapach', 'jotero', 'cifuentm', 'fabian', 'salvarad', 'jdiaz'];
     const token = sessionStorage.getItem('token');
     const paginaActual = window.location.pathname;
 
@@ -145,8 +145,8 @@ const mostrar = (asociados) => {
     $("#tablaCastigados tbody").html(resultados);
 
     const table = $('#tablaCastigados').DataTable({
-        pageLength: 13,
-        lengthMenu: [[13, 20, 45, -1], [10, 20, 45, "Todos"]],
+        pageLength: 7,
+        lengthMenu: [[7, 20, 45, -1], [7, 20, 45, "Todos"]],
         language: {
             sProcessing: "Procesando...",
             sLengthMenu: "Mostrar _MENU_ registros",
@@ -365,3 +365,90 @@ function mostrarTotalesPorZona(asociados) {
     document.getElementById('cuentasTotal').textContent = cuentas.total;
     document.getElementById('valorTotal').textContent = `$ ${valores.total.toLocaleString('es-CO')}`;
 }
+
+
+
+document.getElementById("btnImprimir").addEventListener("click", () => {
+    // 1️⃣ Obtener instancia de DataTable
+    const table = $('#tablaCastigados').DataTable();
+
+    // 2️⃣ Exportar todas las filas (sin paginación ni filtros activos)
+    const todasFilas = table.rows({ search: 'applied' }).data().toArray();
+
+    // 3️⃣ Reconstruir tabla completa en HTML (omitimos la última columna)
+    let tablaCompleta = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Agencia</th>
+                    <th>Total Cuentas</th>
+                    <th>Total Deuda</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    todasFilas.forEach(fila => {
+        tablaCompleta += "<tr>";
+        for (let i = 0; i < fila.length - 1; i++) { // excluye la columna acciones
+            tablaCompleta += `<td>${fila[i]}</td>`;
+        }
+        tablaCompleta += "</tr>";
+    });
+
+    tablaCompleta += "</tbody></table>";
+
+    // 4️⃣ Resumen
+    const tablaResumen = document.getElementById("tablaTotalesZonas").outerHTML;
+
+    // 🕒 5️⃣ Obtener fecha y hora actual
+    const fechaHora = new Date().toLocaleString("es-CO", {
+        dateStyle: "full",
+        timeStyle: "short"
+    });
+
+    // 6️⃣ Contenido del reporte (con estilos incluidos)
+    const contenido = `
+        <html>
+            <head>
+                <title>Reporte Castigados</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+                    th { background-color: #f2f2f2; }
+                    h2 { text-align: center; margin-bottom: 10px; }
+                    .fecha { text-align: right; font-size: 12px; margin-bottom: 20px; font-style: italic; }
+                </style>
+            </head>
+            <body>
+                <div class="fecha">Generado el: ${fechaHora}</div>
+                <h2>Resumen por Agencias</h2>
+                ${tablaCompleta}
+                <h2>Resumen por Zonas Juridicas</h2>
+                ${tablaResumen}
+            </body>
+        </html>
+    `;
+
+    // 7️⃣ Crear un iframe oculto en la misma página
+    let iframe = document.createElement("iframe");
+    iframe.style.position = "absolute";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "none";
+    document.body.appendChild(iframe);
+
+    // 8️⃣ Escribir el contenido en el iframe y disparar la impresión
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(contenido);
+    iframe.contentDocument.close();
+
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+
+    // 9️⃣ Eliminar el iframe después de imprimir
+    setTimeout(() => {
+        document.body.removeChild(iframe);
+    }, 1000);
+});

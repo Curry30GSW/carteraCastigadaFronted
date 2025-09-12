@@ -86,7 +86,7 @@ document.getElementById('btnLogin').addEventListener('click', async function () 
             Swal.fire({
                 icon: 'success',
                 title: 'Bienvenido',
-                html: `Usuario <strong>${user}</strong> ingresado con éxito.`,
+                html: `Usuario <strong>${user.toUpperCase()}</strong> ingresado con éxito.`,
                 timer: 2000,
                 showConfirmButton: false
             }).then(() => {

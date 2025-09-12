@@ -3,7 +3,7 @@ let resultados = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     const usuario = sessionStorage.getItem('usuario');
-    const usuariosAutorizados = ['aguapacha', 'jotero', 'cifuentm', 'fabian', 'salvarad', 'jdiaz'];
+    const usuariosAutorizados = ['aguapach', 'jotero', 'cifuentm', 'fabian', 'salvarad', 'jdiaz'];
     const token = sessionStorage.getItem('token');
     const paginaActual = window.location.pathname;
 
@@ -139,28 +139,86 @@ const mostrar = (asociados) => {
             fechaFormateada = `${dia.toString().padStart(2, '0')}/${meses[mes]}/${anio}`;
         }
 
-        resultados += `
-        <tr>
-            <td class="text-center">${centroOperacion}</td>
-            <td class="text-center">${zonaJuridica}</td>
-            <td>${Number(asociado.NNIT93).toLocaleString('es-CO')}</td>
-            <td>${asociado.DCTA93}</td>
-            <td class="text-center">${asociado.NCTA93}</td>
-            <td>${asociado.DNOM93}</td>
-            <td class="text-center">$ ${sumaCredito.toLocaleString()}</td>
-            <td class="text-center">${fechaFormateada}</td>
-            <td class="text-center">
-                <button class="btn btn-md ver-mas" data-id="${asociado.NNIT93}" title="Ver más">
-                    <i class="fas fa-eye"></i>
-                </button>
+        let scoreBadge = '';
+        if (asociado.Score === 'F/D') {
+            scoreBadge = `<span class="badge bg-dark fs-6">F/D</span>`;
+        } else if (asociado.Score === 'S/E') {
+            scoreBadge = `<span class="badge bg-warning text-dark fs-6">S/E</span>`;
+        } else {
+            const scoreNum = Number(asociado.Score);
+            if (scoreNum > 650) {
+                scoreBadge = `<span class="badge bg-primary fs-6">${scoreNum}</span>`;
+            } else if (scoreNum === 650) {
+                scoreBadge = `<span class="badge bg-warning text-dark fs-6">${scoreNum}</span>`;
+            } else {
+                scoreBadge = `<span class="badge bg-danger fs-6">${scoreNum}</span>`;
+            }
+        }
 
-                 <button class="btn btn-md ver-juridico" data-id="${asociado.NCTA93}" title="Estado Jurídico">
-                    <i class="fa-solid fa-scale-unbalanced-flip"></i>
-                </button>
-            </td>
-        </tr>
-        `;
+        // 🔹 Semáforo para la FechaInsercion
+        let semaforoHTML = '';
+        if (asociado.FechaInsercion && asociado.FechaInsercion !== 'F/D') {
+            const fechaInsercion = new Date(asociado.FechaInsercion);
+            const hoy = new Date();
+            const diffTime = Math.abs(hoy - fechaInsercion);
+            const diffDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            let estado = '';
+            if (diffDias <= 170) {
+                estado = 'green';
+            } else if (diffDias >= 171 && diffDias <= 179) {
+                estado = 'yellow';
+            } else if (diffDias >= 180) {
+                estado = 'red';
+            }
+
+            semaforoHTML = `
+                        <div class="semaforo mt-1">
+                            <div class="circle ${estado === 'green' ? 'active-green' : ''}"></div>
+                            <div class="circle ${estado === 'yellow' ? 'active-yellow' : ''}"></div>
+                            <div class="circle ${estado === 'red' ? 'active-red' : ''}"></div>
+                            <span class="text dark fw-bold">${diffDias} días</span>
+                        </div>
+                    `;
+        } else {
+            semaforoHTML = `
+                        <div class="semaforo mt-1">
+                            <div class="circle"></div>
+                            <div class="circle"></div>
+                            <div class="circle"></div>
+                            <span class="text dark fw-bold">Sin info</span>
+                        </div>
+                    `;
+        }
+
+        resultados += `
+                <tr>
+                    <td class="text-center">${centroOperacion}</td>
+             
+                    <td>${Number(asociado.NNIT93).toLocaleString('es-CO')}</td>
+                    <td>${asociado.DCTA93}</td>
+                    <td class="text-center">${asociado.NCTA93}</td>
+                    <td>${asociado.DNOM93}</td>
+                    <td class="text-center">
+                        <div class="d-flex flex-column align-items-center">
+                            ${scoreBadge}
+                            ${semaforoHTML}
+                        </div>
+                    </td>
+                    <td class="text-center">$ ${sumaCredito.toLocaleString()}</td>
+                    <td class="text-center">${fechaFormateada}</td>
+                    <td class="text-center">
+                        <button class="btn btn-md ver-mas" data-id="${asociado.NNIT93}" title="Ver más">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-md ver-juridico" data-id="${asociado.NCTA93}" title="Estado Jurídico">
+                            <i class="fa-solid fa-scale-unbalanced-flip"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
     });
+
 
     if ($.fn.DataTable.isDataTable('#tablaCastigados')) {
         $('#tablaCastigados').DataTable().clear().destroy();
@@ -169,8 +227,8 @@ const mostrar = (asociados) => {
     $("#tablaCastigados tbody").html(resultados);
 
     const table = $('#tablaCastigados').DataTable({
-        pageLength: 8,
-        lengthMenu: [8, 16, 25, 50, 100],
+        pageLength: 7,
+        lengthMenu: [7, 16, 25, 50, 100],
         language: {
             sProcessing: "Procesando...",
             sLengthMenu: "Mostrar _MENU_ registros",
@@ -184,7 +242,18 @@ const mostrar = (asociados) => {
                 sNext: "Siguiente",
                 sPrevious: "Anterior"
             }
-        }
+        },
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                titleAttr: 'Exportar a Excel',
+                className: 'btn btn-success mb-2',
+                exportOptions: {
+                    columns: ':not(:last-child)' // Excluye la columna de botones
+                }
+            }
+        ]
     });
 
     // Usar event delegation en el contenedor de la tabla
@@ -234,6 +303,8 @@ async function cargarDetallesAsociado(cedula) {
             throw new Error('Error al cargar los datos');
         }
         const data = await response.json();
+        console.log(data);
+
         mostrarDetallesEnModal(data[0]);
     } catch (error) {
         console.error('Error:', error);
@@ -289,6 +360,85 @@ function mostrarDetallesEnModal(asociado) {
             default: return 'Otro';
         }
     }
+
+    const estadosAsociado = {
+        0: { texto: "Activo", clase: "bg-success" },
+        2: { texto: "Retirado", clase: "bg-danger" },
+        3: { texto: "Codeudor", clase: "bg-info" },
+        4: { texto: "Cuentas Control", clase: "bg-info" },
+        5: { texto: "Beneficiario Fallecido", clase: "bg-primary" },
+        6: { texto: "Cuentas H", clase: "bg-warning" },
+        7: { texto: "Cuentas Fraudes", clase: "bg-warning" },
+        8: { texto: "Stand By", clase: "bg-warning" },
+        9: { texto: "Bloqueado por Consejo Admin", clase: "bg-danger" }
+    };
+    const estado = estadosAsociado[asociado.INDC05] || { texto: "No definido", clase: "bg-dark" };
+
+
+    // 🔹 Badge de Score
+    let scoreBadge = '';
+    if (asociado.Score === 'Falta DataCrédito') {
+        scoreBadge = `<span class="badge bg-dark fs-6">Falta DataCrédito</span>`;
+    } else if (asociado.Score === 'S/E') {
+        scoreBadge = `<span class="badge bg-warning text-dark fs-6">S/E</span>`;
+    } else {
+        const scoreNum = Number(asociado.Score);
+        if (scoreNum > 650) {
+            scoreBadge = `<span class="badge bg-primary fs-6">${scoreNum}</span>`;
+        } else if (scoreNum === 650) {
+            scoreBadge = `<span class="badge bg-warning text-dark fs-6">${scoreNum}</span>`;
+        } else {
+            scoreBadge = `<span class="badge bg-danger fs-6">${scoreNum}</span>`;
+        }
+    }
+
+    // 🔹 Semáforo para la FechaInsercion
+    let semaforoHTML = '';
+
+    if (asociado.FechaInsercion && asociado.FechaInsercion !== 'Falta DataCrédito') {
+        const fechaInsercion = new Date(asociado.FechaInsercion);
+        const hoy = new Date();
+        const diffTime = Math.abs(hoy - fechaInsercion);
+        const diffDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        let estado = '';
+        if (diffDias <= 170) {
+            estado = 'green';
+        } else if (diffDias >= 171 && diffDias <= 179) {
+            estado = 'yellow';
+        } else if (diffDias >= 180) {
+            estado = 'red';
+        }
+
+        semaforoHTML = `
+        <div class="semaforo mt-1">
+            <div class="circle ${estado === 'green' ? 'active-green' : ''}"></div>
+            <div class="circle ${estado === 'yellow' ? 'active-yellow' : ''}"></div>
+            <div class="circle ${estado === 'red' ? 'active-red' : ''}"></div>
+            <span class="text dark fw-bold">${diffDias} días</span>
+        </div>
+    `;
+    } else if (asociado.FechaInsercion === 'Falta DataCredito') {
+        semaforoHTML = `
+        <div class="semaforo mt-1">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <span class="text dark fw-bold">0 días</span>
+        </div>
+    `;
+    } else {
+        semaforoHTML = `
+        <div class="semaforo mt-1">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <span class="text dark fw-bold">Sin info</span>
+        </div>
+    `;
+    }
+
+
 
     // Generar HTML para referencias tradicionales
     if (tieneReferencias) {
@@ -540,7 +690,10 @@ function mostrarDetallesEnModal(asociado) {
         <div class="cuerpo-expediente">
             <!-- Sección de identificación -->
             <div class="seccion-expediente">
-                <h4 class="titulo-seccion"><i class="fas fa-id-card"></i> DATOS DEL ASOCIADO</h4>
+                 <h4 class="titulo-seccion">
+                        <i class="fas fa-id-card"></i> DATOS DEL ASOCIADO 
+                        <span class="badge ${estado.clase} ms-2">${estado.texto}</span>
+                    </h4>
                 <div class="grid-datos">
                     <div class="dato-legal">
                         <span class="etiqueta">Nombre completo:</span>
@@ -560,11 +713,19 @@ function mostrarDetallesEnModal(asociado) {
                     </div>
                     <div class="dato-legal">
                         <span class="etiqueta">Recaudación:</span>
-                        <span class="valor">${asociado.DIST93}${asociado.DIST93}-${asociado.AUXA05} ${asociado.DDEP93}</span>
+                        <span class="valor">${asociado.DIST93}${asociado.DIST93}-${asociado.DEPE93} ${asociado.DDEP93}</span>
                     </div>
                     <div class="dato-legal">
                         <span class="etiqueta">Fecha de castigo:</span>
                         <span class="valor">${fechaFormateada}</span>
+                    </div>
+                     <div class="dato-legal">
+                        <span class="etiqueta">Score DATACRÉDITO:</span>
+                        <span class="valor">${scoreBadge}</span>
+                    </div>
+                    <div class="dato-legal">
+                        <span class="etiqueta">Vigencia:</span>
+                        <span class="valor">${semaforoHTML}</span>
                     </div>
                 </div>
             </div>
@@ -583,10 +744,13 @@ function mostrarDetallesEnModal(asociado) {
                     <div class="tarjeta-credito-horizontal">
                         <div class="encabezado-credito">
                             <span class="numero-credito">Pagaré #${credito.numero}</span>
-                            <span class="tipo-credito">Linea: ${credito.tipo_credito}</span>
-                        </div>
-                        
+                            <span class="tipo-credito">Linea: ${credito.tipo_credito}-${credito.descripcion_tipo_credito}</span>
+                        </div>               
                         <div class="detalle-credito">
+                            <div class="fila-detalle">
+                                <span class="concepto">Garantia:</span>
+                                <span class="monto">${credito.moga}-${credito.descripcion_moga}</span>
+                            </div>
                             <div class="fila-detalle">
                                 <span class="concepto">Saldo Capital:</span>
                                 <span class="monto">$${Number(credito.saldo_capital || 0).toLocaleString()}</span>
@@ -618,15 +782,57 @@ function mostrarDetallesEnModal(asociado) {
             ).toLocaleString()}</span>
                                             </div>
                                         </div>
-                                    </div>
+                    <div class="adjuntar-pdf mt-2 p-2 border-top">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-file-pdf text-danger me-2"></i> Adjuntar Pagaré (PDF):
+                        </label>
+
+                        ${credito.pagare_pdf
+                    ? `
+                            <!-- Si existe el PDF mostrar ojito -->
+                            <div class="pdf-visualizar">
+                                <a href="http://localhost:5000/uploads${credito.pagare_pdf}" target="_blank" class="btn btn-success btn-md">
+                                    <i class="fas fa-eye me-1"></i> Ver Pagaré
+                                </a>
+                            </div>
+                            `
+                    : `
+                            <!-- Si NO existe, permitir adjuntar -->
+                            <div class="file-upload-container">
+                                <input type="file" accept="application/pdf" id="fileInput-${credito.numero}" class="d-none file-input">
+                                
+                                <label for="fileInput-${credito.numero}" class="file-upload-label">
+                                    <i class="fas fa-upload me-2"></i> 
+                                    <span class="file-upload-text">Seleccionar archivo PDF</span>
+                                </label>
+
+                                <div id="fileName-${credito.numero}" class="file-name-display mt-1"></div>
+                                
+                                <iframe id="filePreview-${credito.numero}" class="w-100 mt-2 d-none" 
+                                style="height: 200px; border: 1px solid #dee2e6; border-radius: 5px;">
+                                </iframe>
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" 
+                                    id="confirmBtn-${credito.numero}" 
+                                    class="btn btn-success btn-md" 
+                                    data-cedula="${asociado.NNIT93}" 
+                                    data-cuenta="${asociado.NCTA93}"
+                                    data-pagare="${credito.numero}"
+                                    disabled
+                                >
+                                    <i class="fas fa-check-circle me-1"></i> Confirmar
+                                </button>
+                            </div>
+                            `}
+                    </div>
+                </div>
                                 `).join('')
             :
             '<div class="sin-creditos">No se encontraron créditos registrados</div>'
         }
         </div>
     </div>
-
-             <!-- Resumen financiero (DESPUÉS) - CON TUS CLASES ORIGINALES -->
                 <div class="resumen-financiero">
                     <div class="dato-financiero">
                         <span class="concepto">Crédito Ordinario:</span>
@@ -702,6 +908,14 @@ function mostrarDetallesEnModal(asociado) {
                         <span class="etiqueta">Cargo:</span>
                         <span class="valor">${asociado.CARG05 || 'No disponible'}</span>
                     </div>
+                    <div class="dato-legal">
+                        <span class="etiqueta">Vivienda:</span>
+                        <span class="valor">${asociado.MVIV05 || 'No Registrada'}</span>
+                    </div>
+                     <div class="dato-legal">
+                        <span class="etiqueta">Vehiculo:</span>
+                        <span class="valor">${asociado.PLAC05 || 'No Registrada'}</span>
+                    </div>
                 </div>
             </div>
 
@@ -738,6 +952,7 @@ function mostrarDetallesEnModal(asociado) {
             </div>
         </div>
     </div>`;
+
 }
 
 
@@ -811,6 +1026,55 @@ function formatearHora(horaString) {
 }
 
 
+function formatearFechaGeneral(fecha, origen) {
+    if (origen === "MySQL") {
+        if (!fecha) return "Fecha no válida";
+
+        // ejemplo entrada: "05 de sept de 2025"
+        const partes = fecha.split(" ").filter(p => p.toLowerCase() !== "de");
+        // ahora partes = ["05", "sept", "2025"]
+
+        if (partes.length < 3) return fecha;
+
+        const dia = partes[0].padStart(2, "0");
+        const mesTexto = partes[1].toLowerCase();
+        const anio = partes[2];
+
+        const mesesMap = {
+            ene: "Ene", enero: "Ene",
+            feb: "Feb", febrero: "Feb",
+            mar: "Mar", marzo: "Mar",
+            abr: "Abr", abril: "Abr",
+            may: "May", mayo: "May",
+            jun: "Jun", junio: "Jun",
+            jul: "Jul", julio: "Jul",
+            ago: "Ago", agosto: "Ago",
+            sep: "Sep", sept: "Sep", septiembre: "Sep",
+            oct: "Oct", octubre: "Oct",
+            nov: "Nov", noviembre: "Nov",
+            dic: "Dic", diciembre: "Dic"
+        };
+
+        const mes = mesesMap[mesTexto] || mesTexto;
+
+        return `${dia}/${mes}/${anio}`;
+    } else {
+        return formatearFecha(fecha); // AS400
+    }
+}
+
+function formatearHoraGeneral(hora, origen) {
+    if (origen === "MySQL") {
+        // Se devuelve tal cual viene
+        return hora || "No disponible";
+    } else {
+        // AS400 sí se formatea
+        return formatearHora(hora);
+    }
+}
+
+
+
 
 function obtenerEstadoCivilHTML(codigo) {
     switch (codigo) {
@@ -857,10 +1121,14 @@ async function cargarProcesoJuridico(cuenta) {
         document.getElementById('contenidoModalAsociado').innerHTML = `
         <div class="text-center p-3">
             <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
-            <p class="mb-0 text-dark">Esta persona no tiene procesos jurídicos registrados.</p>
+            <p class="mb-2 text-dark">Esta persona no tiene procesos jurídicos registrados.</p>
+            <button class="btn btn-md btn-warning fw-bold" id="btnVerGestion" data-cuenta="${cuenta}">
+                <i class="fas fa-tasks me-1"></i> VER GESTIÓN
+            </button>
         </div>
     `;
     }
+
 
 }
 
@@ -1083,7 +1351,7 @@ function mostrarProcesoJuridicoEnModal(procesos) {
     </div>
     <div class="historial">
         <div class="evento-historial">
-            <div class="fecha-evento">${formatearFecha(proceso.FCHA29)}</div>
+            <div class="fecha-evento">${formatearFechaGeneral(proceso.FCHA29)}</div>
             <div class="detalle-evento">
                 <span class="titulo-evento">Inicio del proceso</span>
                 <span class="descripcion-evento">Radicado en Juzgado ${proceso.JUZG29 || 'juzgado no especificado'}-${proceso.DEJ129}</span>
@@ -1091,7 +1359,7 @@ function mostrarProcesoJuridicoEnModal(procesos) {
         </div>
         ${proceso.FRAD29 ? `
         <div class="evento-historial">
-            <div class="fecha-evento">${formatearFecha(proceso.FRAD29)}</div>
+            <div class="fecha-evento">${formatearHoraGeneral(proceso.FRAD29)}</div>
             <div class="detalle-evento">
                 <span class="titulo-evento">Radicación formal</span>
                 <span class="descripcion-evento">Expediente ${proceso.EXPEJUZ29 || 'no especificado'}</span>
@@ -1124,7 +1392,7 @@ document.addEventListener('click', (e) => {
     if (btn) {
         const cuenta = btn.dataset.cuenta;
         if (cuenta) abrirModalGestion(cuenta);
-        else alert('Cuenta no disponible.');
+        else alert('Cuenta sin gestión.');
     }
 });
 
@@ -1147,6 +1415,8 @@ async function abrirModalGestion(cuenta) {
         });
 
         const data = await res.json();
+        console.log(data);
+
         const contenido = document.getElementById('contenidoGestion');
 
         if (!data || data.length === 0) {
@@ -1174,7 +1444,7 @@ async function abrirModalGestion(cuenta) {
                             </div>
                             <div class="titulo-documento">
                                 <h3>HISTORIAL DE GESTIONES</h3>
-                                <p class="numero-expediente text-dark fs-6">Cuenta No. ${cuenta} - ${data[0].DESC05}</p>
+                                <p class="numero-expediente text-dark fs-6">Cuenta No. ${cuenta} - ${data[0].nombre}</p>
                             </div>
                             <div class="sello">
                                 <div class="sello-content">
@@ -1185,7 +1455,7 @@ async function abrirModalGestion(cuenta) {
                         
                         <div class="datos-encabezado">
                             <div class="fecha-radicacion">
-                                <span class="text-dark fw-bold fs-5">Última gestión: ${formatearFecha(gestionesOrdenadas[0].FCHA29)}</span>
+                                <span class="text-dark fw-bold fs-5">Última gestión: ${formatearFechaGeneral(gestionesOrdenadas[0].fecha_gestion, gestionesOrdenadas[0].origen)}</span>
                             </div>
                             <div class="codigo-barras">
                                 <span>Total gestiones: ${data.length}</span>
@@ -1200,43 +1470,52 @@ async function abrirModalGestion(cuenta) {
                                 <h4 class="titulo-seccion mb-0"><i class="fas fa-history me-2"></i>DETALLE DE GESTIONES</h4>
                                 <span class="badge bg-primary">${data.length} registros</span>
                             </div>
+                        <div class="convencion-colores mb-3">
+                            <span class="badge" style="background-color:#3a7bd5;">AS400</span>
+                            <small class="text-dark ms-2">Gestiones provenientes de la plataforma AS400</small><br>
+                            <span class="badge text-dark fw-bold" style="background-color:#11db4e;">Software Cartera Cast.</span>
+                            <small class="text-dark ms-2">Gestiones registradas en el Software Cartera Cast.</small>
+                        </div>
+
                             
                             <div class="timeline-gestiones">
             `;
 
             gestionesOrdenadas.forEach((gestion, index) => {
+                const claseOrigen = gestion.origen === "MySQL" ? "mysql" : "as400";
+
                 html += `
-                                <!-- Item de gestión -->
-                                <div class="evento-gestion ${index === 0 ? 'ultima-gestion' : ''}">
-                                    <div class="timeline-marker">
-                                        <i class="fas ${index === 0 ? 'fa-star' : 'fa-circle'}"></i>
+                        <div class="evento-gestion ${index === 0 ? 'ultima-gestion' : ''}">
+                            <div class="timeline-marker">
+                                <i class="fas ${index === 0 ? 'fa-star' : 'fa-circle'}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h5>Gestión #${index + 1}</h5>
+                                    <span class="fecha-gestion">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        ${formatearFechaGeneral(gestion.fecha_gestion, gestion.origen)} 
+                                        <i class="far fa-clock ms-2 me-1"></i>
+                                        ${formatearHoraGeneral(gestion.hora_gestion, gestion.origen)}
+                                    </span>
+                                </div>
+                                <div class="timeline-body">
+                                    <div class="descripcion-gestion ${claseOrigen}">
+                                        <i class="fas fa-align-left me-2"></i>
+                                        <p class="fw-bold text-dark">${gestion.gestion || 'Sin descripción registrada'}</p>
                                     </div>
-                                    <div class="timeline-content">
-                                        <div class="timeline-header">
-                                            <h5>Gestión #${index + 1}</h5>
-                                            <span class="fecha-gestion">
-                                                <i class="far fa-calendar-alt me-1"></i>
-                                                ${formatearFecha(gestion.FCHA29)} 
-                                                <i class="far fa-clock ms-2 me-1"></i>
-                                                ${formatearHora(gestion.HORA29)}
-                                            </span>
-                                        </div>
-                                        <div class="timeline-body">
-                                            <div class="descripcion-gestion">
-                                                <i class="fas fa-align-left me-2"></i>
-                                                <p class="fw-bold text-dark">${gestion.GESTION || 'Sin descripción registrada'}</p>
-                                            </div>
-                                            <div class="metadatos-gestion">
-                                                <span class="badge bg-light text-dark">
-                                                    <i class="fas fa-user-circle me-1"></i>
-                                                    ${gestion.USER29 || gestion.PUSE29 || 'Usuario no registrado'}
-                                                </span>
-                                            </div>
-                                        </div>
+                                    <div class="metadatos-gestion">
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-user-circle me-1"></i>
+                                            ${gestion.usuario_gestion || 'Usuario no registrado'}
+                                        </span>
                                     </div>
                                 </div>
-                `;
+                            </div>
+                        </div>
+                    `;
             });
+
 
             html += `
                             </div>
@@ -1463,3 +1742,285 @@ function imprimirHistorial() {
 
     ventanaImpresion.document.close();
 }
+
+document.addEventListener("change", function (e) {
+    if (e.target.matches(".file-input")) {
+        const fileInput = e.target;
+        const creditoNum = fileInput.id.split("-")[1];
+        const fileNameDisplay = document.getElementById(`fileName-${creditoNum}`);
+        const filePreview = document.getElementById(`filePreview-${creditoNum}`);
+        const confirmBtn = document.getElementById(`confirmBtn-${creditoNum}`);
+
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileNameDisplay.textContent = file.name;
+
+            // Previsualizar PDF
+            const fileURL = URL.createObjectURL(file);
+            filePreview.src = fileURL;
+            filePreview.classList.remove("d-none");
+
+            // Habilitar botón confirmar
+            confirmBtn.disabled = false;
+        }
+    }
+});
+
+document.addEventListener('click', function (e) {
+    if (e.target.id.startsWith('confirmBtn-')) {
+        const numeroCredito = e.target.id.split('-')[1];
+        const fileInput = document.getElementById(`fileInput-${numeroCredito}`);
+        const file = fileInput.files[0];
+
+        if (!file) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Archivo faltante',
+                text: 'Por favor, adjunta un archivo PDF antes de confirmar.'
+            });
+            return;
+        }
+
+        const cedula = e.target.getAttribute("data-cedula");
+        const cuenta = e.target.getAttribute("data-cuenta");
+        const pagare = e.target.getAttribute("data-pagare");
+
+        const formData = new FormData();
+        formData.append("cedula", cedula);
+        formData.append("cuenta", cuenta);
+        formData.append("pagare", pagare);
+        formData.append("pagare_pdf", file);
+
+        fetch("http://localhost:5000/api/pagares", {
+            method: "POST",
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error
+                    });
+                } else {
+                    const modalEl = document.getElementById('modalDetalleAsociado');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    // Mostrar alerta de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'Pagaré cargado correctamente ✅',
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        // Recargar la página después de cerrar la alerta
+                        window.location.reload();
+                    });
+                }
+            })
+            .catch(err => {
+                console.error("Error al cargar pagaré:", err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar el pagaré ❌'
+                });
+            });
+    }
+});
+
+document.getElementById("btnBuscarCliente").addEventListener("click", async () => {
+    const cedula = document.getElementById("cedulaInput").value.trim();
+    if (!cedula) {
+        Swal.fire({
+            icon: "warning",
+            title: "Campo vacío",
+            text: "Por favor ingrese un número de cédula",
+            confirmButtonColor: "#1B3C53"
+        });
+        return;
+    }
+
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/castigos/${cedula}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) throw new Error("Cliente no encontrado");
+
+        const data = await response.json();
+        const cliente = Array.isArray(data) ? data[0] : data;
+
+        // Mostrar datos
+        document.getElementById("datosCliente").classList.remove("d-none");
+        document.getElementById("clienteNombre").textContent = cliente.DCTA93 || "No disponible";
+        document.getElementById("clienteCedula").textContent = cliente.NNIT93 || "No disponible";
+        document.getElementById("clienteNomina").textContent = cliente.DNOM93 || "No disponible";
+        document.getElementById("clienteCuenta").textContent = cliente.NCTA93 || "No disponible";
+        document.getElementById("clienteAgencia").textContent = `${cliente.AAUX93} - ${cliente.DESC03}` || "No disponible";
+        document.getElementById("clienteValorCastigado").textContent = cliente.ESCR93 ? `$${Number(cliente.ESCR93).toLocaleString('es-CO')}` : "No disponible";
+
+        // Mostrar área de gestión
+        document.getElementById("areaGestion").classList.remove("d-none");
+        document.getElementById("btnGuardarGestion").classList.remove("d-none");
+
+        // ✅ Opcional: mostrar notificación de éxito
+        Swal.fire({
+            icon: "success",
+            title: "Cliente encontrado",
+            text: `${cliente.DCTA93 || "Cliente"} ha sido cargado correctamente.`,
+            confirmButtonColor: "#1B3C53",
+            timer: 2500,
+            showConfirmButton: false
+        });
+
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Cliente no encontrado",
+            text: "No se encontró información para el número de cédula ingresado.",
+            confirmButtonColor: "#d33"
+        });
+        console.error(error);
+    }
+});
+
+document.getElementById("btnGuardarGestion").addEventListener("click", async () => {
+    const cedula = document.getElementById("clienteCedula").textContent.trim();
+    const nombre = document.getElementById("clienteNombre").textContent.trim().toUpperCase();
+    const cuenta = document.getElementById("clienteCuenta").textContent.trim();
+    const gestion = document.getElementById("textoGestion").value.trim().toUpperCase();
+    const maxChars = 250;
+
+    // Validaciones
+    if (!gestion) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Debe ingresar una gestión'
+        });
+        return;
+    }
+
+    if (gestion.length > maxChars) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Límite excedido',
+            text: `La gestión no puede superar ${maxChars} caracteres`
+        });
+        return;
+    }
+
+    const token = sessionStorage.getItem("token");
+    const usuario_gestion = sessionStorage.getItem("usuario").toUpperCase();
+
+    try {
+        const response = await fetch("http://localhost:5000/api/gestion", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ cedula, nombre, cuenta, gestion, usuario_gestion })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Error al guardar la gestión");
+        }
+
+        const result = await response.json();
+
+        // Cerrar modal antes del éxito
+        const modalElement = document.getElementById('modalCrearGestion');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) modal.hide();
+
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: `Gestión guardada correctamente. ✅`,
+        }).then(() => {
+            location.reload();
+        });
+
+        // Limpiar input
+        document.getElementById("textoGestion").value = '';
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message
+        });
+        console.error(error);
+    }
+});
+
+
+document.getElementById("cedulaInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("btnBuscarCliente").click();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const textoGestion = document.getElementById('textoGestion');
+    const charCounter = document.querySelector('.char-counter');
+    const maxChars = 250;
+
+    if (textoGestion && charCounter) {
+        // Contador de caracteres
+        textoGestion.addEventListener('input', function () {
+            const length = this.value.length;
+            charCounter.textContent = `${length}/${maxChars} caracteres`;
+
+            // Cambiar color cuando se aproxime al límite
+            if (length > maxChars * 0.9) {
+                charCounter.classList.add('text-danger'); // ejemplo: rojo al límite
+            } else {
+                charCounter.classList.remove('text-danger');
+            }
+
+            // Resaltar textarea cuando tenga texto
+            if (length > 0) {
+                this.classList.add('has-text');
+            } else {
+                this.classList.remove('has-text');
+            }
+        });
+
+        // Validar longitud máxima
+        textoGestion.addEventListener('keydown', function (e) {
+            if (this.value.length >= maxChars && e.key !== 'Backspace' && e.key !== 'Delete' && !e.ctrlKey) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+
+document.getElementById('modalCrearGestion').addEventListener('hidden.bs.modal', () => {
+    // Limpiar inputs
+    document.getElementById("cedulaInput").value = "";
+    document.getElementById("textoGestion").value = "";
+
+    // Ocultar secciones
+    document.getElementById("datosCliente").classList.add("d-none");
+    document.getElementById("areaGestion").classList.add("d-none");
+    document.getElementById("btnGuardarGestion").classList.add("d-none");
+
+    // Limpiar datos del cliente
+    document.getElementById("clienteAgencia").textContent = "";
+    document.getElementById("clienteNombre").textContent = "";
+    document.getElementById("clienteCedula").textContent = "";
+    document.getElementById("clienteCuenta").textContent = "";
+    document.getElementById("clienteNomina").textContent = "";
+    document.getElementById("clienteValorCastigado").textContent = "";
+});

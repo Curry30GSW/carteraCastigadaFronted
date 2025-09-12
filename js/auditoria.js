@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const usuario = sessionStorage.getItem('usuario');
-    const usuariosAutorizados = ['aguapacha', 'jotero', 'cifuentm', 'fabian', 'salvarad', 'jdiaz'];
+    const usuariosAutorizados = ['aguapach', 'jotero', 'cifuentm', 'fabian', 'salvarad', 'jdiaz'];
     const token = sessionStorage.getItem('token');
     const paginaActual = window.location.pathname;
 
@@ -117,7 +117,7 @@ const mostrar = (auditoria) => {
         resultados += `
     <tr>
         <td class="text-center">${registro.id}</td>
-        <td class="text-center">${registro.usuario}</td>
+        <td class="text-center text-uppercase">${registro.usuario}</td>
         <td class="text-center">${registro.evento}</td>
         <td class="text-center">${registro.ip}</td>
         <td class="text-center">${fechaFormateada}</td>

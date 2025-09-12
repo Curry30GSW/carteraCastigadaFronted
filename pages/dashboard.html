@@ -35,6 +35,8 @@
 
   <link rel="stylesheet" href="/assets/css/estilosFooter.css">
 
+  <link rel="stylesheet" href="/assets/css/buscarCliente.css">
+
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -113,6 +115,19 @@
           <h4 class="text-white font-weight-bolder" id="fechaCorte"></h4>
         </div>
       </div>
+      <div class="row mt-2">
+        <div class="col d-flex justify-content-end gap-2 px-3">
+          <button type="button" class="btn btn-warning btn-md d-flex align-items-center" data-bs-toggle="modal"
+            data-bs-target="#modalConceptos">
+            <i class="fas fa-info-circle me-2"></i> Medidas Cautelares
+          </button>
+          <button type="button" class="btn btn-dark btn-md d-flex align-items-center" id="btnCrearGestion"
+            data-bs-toggle="modal" data-bs-target="#modalCrearGestion">
+            <i class="fas fa-plus me-2"></i> Crear Gestión
+          </button>
+        </div>
+      </div>
+
       <div class="row mb-4 mt-5">
         <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
           <div class="card">
@@ -127,11 +142,12 @@
                   <thead>
                     <tr>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Agencia</th>
-                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Zona Juridica</th>
+                      <!-- <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Zona Juridica</th> -->
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Cedúla</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Nombre</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Cuenta</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Nomina</th>
+                      <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Score/Vigencia</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Valor Castigado</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Fecha Castigo</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Acciones</th>
@@ -145,6 +161,7 @@
           </div>
         </div>
       </div>
+
       <footer class="footer py-4">
         <div class="container-fluid">
           <div class="row align-items-center justify-content-lg-between">
@@ -158,7 +175,7 @@
                 <span class="guapacha-container">
                   <span class="guapacha-badge">
                     <!-- <i class="fas fa-crown me-1"></i> -->
-                    <span class="guapacha-name">ANDRÉS GUAPACHA</span>
+                    <span class="guapacha-name">COOPSERP</span>
                     <!-- <i class="fas fa-bolt ms-1"></i> -->
                   </span>
                   <div class="lightning-storm"></div>
@@ -170,10 +187,10 @@
           </div>
         </div>
       </footer>
-
     </div>
 
   </main>
+
 
 
   <div class="modal fade" id="modalDetalleAsociado" tabindex="-1" aria-labelledby="modalDetalleLabel"
@@ -205,6 +222,191 @@
         </div>
         <div class="modal-body" id="contenidoGestion">
 
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Conceptos -->
+  <div class="modal fade" id="modalConceptos" tabindex="-1" aria-labelledby="modalConceptosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+
+        <!-- Header -->
+        <div class="modal-header text-white" style="background-color: #005E56;">
+          <h5 class="modal-title fw-bold w-100 text-center" id="modalConceptosLabel">
+            Conceptos Medidas Cautelares
+          </h5>
+        </div>
+
+
+        <!-- Body -->
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead style="background-color: #E0F2F1;"> <!-- Verde clarito para diferenciar -->
+                <tr>
+                  <th class="text-center">Código</th>
+                  <th class="text-center">Descripción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-center">MC1</td>
+                  <td>SALARIOS</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC2</td>
+                  <td>PENSIÓN</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC3</td>
+                  <td>HONORARIOS, BONIFICACIÓN O DEMÁS DOCUMENTOS</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC4</td>
+                  <td>BIENES INMUEBLES</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC5</td>
+                  <td>DERECHOS EN COMÚN Y PROINDIVISO SOBRE EL INMUEBLE</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC6</td>
+                  <td>BIENES MUEBLES</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC7</td>
+                  <td>ESTABLECIMIENTOS DE COMERCIO</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC8</td>
+                  <td>PRESTACIONES SOCIALES</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC8A</td>
+                  <td>PRESTACIONES SOCIALES INCLUIDAS CESANTÍAS</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC8B</td>
+                  <td>PRESTACIONES SOCIALES SIN CESANTÍAS</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC8C</td>
+                  <td>CESANTÍAS</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC9</td>
+                  <td>CUENTAS BANCARIAS</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC10</td>
+                  <td>REMANENTES</td>
+                </tr>
+                <tr>
+                  <td class="text-center">MC11</td>
+                  <td>AMPLIACIÓN DE MEDIDA</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Gestión -->
+  <div class="modal fade" id="modalCrearGestion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold"><i class="fas fa-tasks me-2"></i> Nueva Gestión</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <!-- Paso 1: Buscar Cliente -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Escriba número de cédula</label>
+
+            <div class="search-container">
+              <div class="search-bar shadow-sm">
+                <input type="text" id="cedulaInput" class="form-control border-0" placeholder="Ej: 1019059411"
+                  aria-label="Número de documento">
+                <button class="btn" id="btnBuscarCliente">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+
+              <div class="d-flex justify-content-between mt-2 w-100" style="max-width: 500px;">
+                <small class="text-muted">Ejemplo: 1019059411</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 2: Mostrar Datos Cliente -->
+          <div id="datosCliente" class="d-none mt-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body">
+                <h6 class="fw-bold mb-3"><i class="fas fa-user me-2"></i> Información del Asociado</h6>
+
+                <div class="info-grid">
+                  <div class="info-item">
+                    <strong>Agencia:</strong>
+                    <span id="clienteAgencia"></span>
+                  </div>
+
+                  <div class="info-item">
+                    <strong>Nombre:</strong>
+                    <span id="clienteNombre"></span>
+                  </div>
+
+                  <div class="info-item">
+                    <strong>Cédula:</strong>
+                    <span id="clienteCedula"></span>
+                  </div>
+
+                  <div class="info-item">
+                    <strong>Cuenta:</strong>
+                    <span id="clienteCuenta"></span>
+                  </div>
+
+                  <div class="info-item">
+                    <strong>Nómina:</strong>
+                    <span id="clienteNomina"></span>
+                  </div>
+
+                  <div class="info-item">
+                    <strong>Valor Castigado:</strong>
+                    <span id="clienteValorCastigado"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 3: Escribir Gestión -->
+          <div id="areaGestion" class="d-none mt-4">
+            <label class="form-label fw-bold">Detalle de la Gestión</label>
+            <textarea id="textoGestion" class="form-control" rows="5"
+              placeholder="Escriba aquí la gestión realizada..."></textarea>
+            <small class="text-muted char-counter">0/250 caracteres</small>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success d-none" id="btnGuardarGestion">
+            <i class="fas fa-save me-2"></i> Guardar Gestión
+          </button>
         </div>
       </div>
     </div>

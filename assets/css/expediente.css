@@ -728,15 +728,30 @@
     width: 600px;
 }
 
-.descripcion-gestion {
-    background-color: #f8f9fa;
-    border-left: 3px solid #3a7bd5;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 0 4px 4px 0;
+/* Estilo para gestiones AS400 */
+.descripcion-gestion.as400 {
+  background-color: #f8f9fa;
+  border-left: 3px solid #3a7bd5; /* Azul original */
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 0 4px 4px 0;
 }
 
-.descripcion-gestion p {
+/* Estilo para gestiones MySQL */
+.descripcion-gestion.mysql {
+  background-color: #f8f9fa;
+  border-left: 3px solid #11db4e; 
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+
+.descripcion-gestion.as400 p {
+    margin-bottom: 0;
+}
+
+.descripcion-gestion.mysql p {
     margin-bottom: 0;
 }
 
@@ -804,14 +819,16 @@
     flex: 0 0 auto;
 }
 
-.encabezado-credito {
-    background-color: #f8f9fa;
-    padding: 12px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e0e0e0;
+.encabezado-credito{
+  display: flex;
+  flex-direction: column; 
+  gap: 6px;             
+  align-items: flex-start;
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
 }
+
 
 .numero-credito {
     font-weight: bold;
@@ -895,3 +912,116 @@
 }
 
 
+.file-upload-container {
+  position: relative;
+}
+
+.file-upload-label {
+  display: block;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px dashed #adb5bd;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.file-upload-label:hover {
+  background-color: #e9ecef;
+  border-color: #6c757d;
+}
+
+.file-upload-text {
+  font-weight: 500;
+}
+
+.file-name-display {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* Cuando ya se selecciona un archivo */
+.file-upload-label.has-file {
+  background-color: #d1e7dd !important;
+  border-color: #badbcc !important;
+  color: #0f5132 !important;
+  border-style: solid !important;
+}
+
+.adjuntar-pdf {
+  margin-top: 10px;
+  border-top: 1px solid #dee2e6;
+  padding-top: 10px;
+}
+
+.adjuntar-pdf iframe {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  height: 180px;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+}
+
+
+.semaforo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.semaforo .circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #d3d3d3; /* gris por defecto */
+}
+
+.semaforo .circle.active-green {
+    background-color: #28a745; /* verde */
+}
+
+.semaforo .circle.active-yellow {
+    background-color: #ffc107; /* amarillo */
+}
+
+.semaforo .circle.active-red {
+    background-color: #dc3545; /* rojo */
+}
+
+.semaforo span {
+    font-size: 12px;
+    margin-left: 6px;
+    color: #333;
+}
+
+
+.badge.fs-5 {
+    font-size: 0.5rem; /* Más grande que el normal */
+    padding: 8px 14px;
+}
+
+.semaforo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.semaforo .circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #ccc;
+}
+
+.active-green { background-color: #28a745 !important; }
+.active-yellow { background-color: #ffc107 !important; }
+.active-red { background-color: #dc3545 !important; }
+
+.semaforo span {
+    font-size: 0.9rem;
+    color: #555;
+}
