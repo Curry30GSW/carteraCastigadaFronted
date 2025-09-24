@@ -307,7 +307,7 @@ function actualizarFechaCorte() {
 
     let horas = ahora.getHours();
     const minutos = ahora.getMinutes().toString().padStart(2, '0');
-    const ampm = horas >= 12 ? 'P.m' : 'A.m';
+    const ampm = horas >= 12 ? 'P.M' : 'A.M';
     horas = horas % 12;
     horas = horas ? horas : 12;
 

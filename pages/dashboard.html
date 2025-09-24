@@ -37,6 +37,8 @@
 
   <link rel="stylesheet" href="/assets/css/buscarCliente.css">
 
+
+
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -86,7 +88,7 @@
       </div>
     </div>
   </aside>
-  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+  <main class="main-content position-relative border-radius-lg ">
     <!-- Navbar -->
     <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur"
       data-scroll="true">
@@ -108,14 +110,14 @@
     </nav>
 
     <!-- End Navbar -->
-    <div class="container-fluid py-2">
+    <div class="container-fluid">
       <div class="row">
         <div class="d-flex justify-content-between align-items-center px-3">
           <h1 class="mb-0 h4 font-weight-bolder text-white">Cartera Castigada</h1>
           <h4 class="text-white font-weight-bolder" id="fechaCorte"></h4>
         </div>
       </div>
-      <div class="row mt-2">
+      <div class="row">
         <div class="col d-flex justify-content-end gap-2 px-3">
           <button type="button" class="btn btn-warning btn-md d-flex align-items-center" data-bs-toggle="modal"
             data-bs-target="#modalConceptos">
@@ -128,21 +130,114 @@
         </div>
       </div>
 
+
       <div class="row mb-4 mt-5">
         <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
           <div class="card">
             <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-              <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+              <div
+                class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
                 <h4 class="text-white text-capitalize ps-3">Asociados Castigados</h4>
+                <button id="toggleFiltros" class="btn btn-warning btn-md me-3">
+                  <i class="fas fa-filter"></i> Filtros
+                </button>
               </div>
             </div>
+
             <div class="card-body px-0 pb-2">
+
+              <!-- Contenedor de Filtros Oculto -->
+              <div class="filtros-container d-none">
+                <!-- Primera fila (3 filtros) -->
+                <div class="row mb-3 g-2 align-items-end">
+                  <div class="col-md-4">
+                    <label class="form-label text-dark">Agencias</label>
+                    <div class="dropdown w-100">
+                      <button class="form-select text-start" type="button" id="dropdownAgencias"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Seleccionar agencias...
+                      </button>
+                      <div class="dropdown-menu w-100 p-3" aria-labelledby="dropdownAgencias"
+                        style="max-height: 300px; overflow-y: auto;">
+                        <div class="form-check mb-2">
+                          <input class="form-check-input" type="checkbox" id="selectAllAgencias">
+                          <label class="form-check-label fw-bold" for="selectAllAgencias">
+                            Seleccionar todas
+                          </label>
+                        </div>
+                        <hr>
+                        <div id="checkboxesAgencias"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="filtroFechaInicio" class="form-label text-dark">Fecha Castigo (desde)</label>
+                    <input type="date" id="filtroFechaInicio" class="form-control">
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="filtroFechaFin" class="form-label text-dark">Fecha Castigo (hasta)</label>
+                    <input type="date" id="filtroFechaFin" class="form-control">
+                  </div>
+                </div>
+
+                <!-- Segunda fila (3 filtros + botón al final) -->
+                <div class="row mb-3 g-2 align-items-end">
+                  <div class="col-md-4">
+                    <label for="ordenFecha" class="form-label text-dark">Orden Fecha</label>
+                    <select id="ordenFecha" class="form-select">
+                      <option value="asc">Más antiguos primero</option>
+                      <option value="desc">Más recientes primero</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="filtroScore" class="form-label text-dark">Score</label>
+                    <select id="filtroScore" class="form-select">
+                      <option value="">Todos</option>
+                      <option value="SE">S/E</option>
+                      <option value="FD">F/D</option>
+                      <option value="QEPD">Q.E.P.D</option>
+                      <option value="0-650">0 - 650</option>
+                      <option value="650+">650+</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="ordenValor" class="form-label text-dark">Orden Valor</label>
+                    <select id="ordenValor" class="form-select">
+                      <option value="">Sin ordenar</option>
+                      <option value="asc">Menor a mayor</option>
+                      <option value="desc">Mayor a menor</option>
+                    </select>
+                  </div>
+
+                  <!-- Botón borrar filtros -->
+                  <div class="col-12 d-flex justify-content-end mt-2">
+                    <button id="limpiarFiltros" class="btn btn-danger btn-icon">
+                      <i class="fas fa-broom"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Contenedor de agencias seleccionadas -->
+                <div class="row mt-2">
+                  <div class="col-12">
+                    <div id="agenciasSeleccionadasContainer" class="d-flex flex-wrap gap-2 align-items-center">
+                      <span class="text-muted small" id="textoAgencias">Ninguna agencia seleccionada</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- Tabla -->
               <div class="table-responsive">
                 <table id="tablaCastigados" class="table table-striped" style="width:100%">
                   <thead>
                     <tr>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Agencia</th>
-                      <!-- <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Zona Juridica</th> -->
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Cedúla</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Nombre</th>
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Cuenta</th>
@@ -153,43 +248,43 @@
                       <th class="text-center text-uppercase text-dark text-md font-weight-bolder">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody>
-                  </tbody>
+                  <tbody></tbody>
                 </table>
               </div>
+
             </div>
           </div>
         </div>
       </div>
-
-      <footer class="footer py-4">
-        <div class="container-fluid">
-          <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-12 text-center">
-              <div class="copyright-text" style="font-size: 1.1rem;">
-                ©
-                <script>document.write(new Date().getFullYear())</script>
-                <span class="mx-2">⚡</span>
-                <span class="powered-by">DESARROLLADO POR</span>
-                <span class="mx-2">⚡</span>
-                <span class="guapacha-container">
-                  <span class="guapacha-badge">
-                    <!-- <i class="fas fa-crown me-1"></i> -->
-                    <span class="guapacha-name">COOPSERP</span>
-                    <!-- <i class="fas fa-bolt ms-1"></i> -->
-                  </span>
-                  <div class="lightning-storm"></div>
-                </span>
-                <span class="mx-2">⚡</span>
-                <span class="version">v1.0.0</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
 
   </main>
+
+  <footer class="footer py-3">
+    <div class="container-fluid">
+      <div class="row align-items-center justify-content-lg-between">
+        <div class="col-lg-12 text-center">
+          <div class="copyright-text" style="font-size: 1.1rem;">
+            ©
+            <script>document.write(new Date().getFullYear())</script>
+            <span class="mx-2">⚡</span>
+            <span class="powered-by">DESARROLLADO POR</span>
+            <span class="mx-2">⚡</span>
+            <span class="guapacha-container">
+              <span class="guapacha-badge">
+                <!-- <i class="fas fa-crown me-1"></i> -->
+                <span class="guapacha-name">COOPSERP</span>
+                <!-- <i class="fas fa-bolt ms-1"></i> -->
+              </span>
+              <div class="lightning-storm"></div>
+            </span>
+            <span class="mx-2">⚡</span>
+            <span class="version">v1.0.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 
 
 
@@ -403,7 +498,7 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="button" class="btn btn-success d-none" id="btnGuardarGestion">
             <i class="fas fa-save me-2"></i> Guardar Gestión
           </button>
@@ -426,6 +521,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- En el head de tu HTML -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script src="../js/castigados.js"></script>
 
@@ -433,6 +533,7 @@
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
   <!--   Core JS Files   -->
 
   <script src="../assets/js/core/popper.min.js"></script>

@@ -104,190 +104,839 @@ async function obtenerasociados() {
 
 
 const mostrar = (asociados) => {
-    let resultados = '';
+    let datosOriginales = [...asociados];
+    let datosFiltrados = [...asociados];
+    let table;
+    let agenciasDisponibles = [];
 
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const obtenerAgenciasSeleccionadas = () => {
+        const checkboxes = document.querySelectorAll('#checkboxesAgencias input[type="checkbox"]:checked');
+        const agenciasSeleccionadas = [];
 
-    // Determinar zona jurídica
-    const determinarZonaJuridica = (agencia) => {
-        const agenciaNum = parseInt(agencia);
-        const zonas = {
-            centro: [48, 80, 89, 94, 83, 13, 68, 73, 76, 90, 91, 92, 96, 93, 95],
-            norte: [87, 86, 85, 81, 84, 88, 98, 97, 82],
-            sur: [77, 49, 70, 42, 46, 45, 47, 78, 74, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 29]
-        };
+        checkboxes.forEach(checkbox => {
+            if (checkbox.id !== 'selectAllAgencias') {
+                agenciasSeleccionadas.push(checkbox.value);
+            }
+        });
 
-        if (zonas.centro.includes(agenciaNum)) return '21 - JURIDICO ZONA CENTRO';
-        if (zonas.norte.includes(agenciaNum)) return '22 - JURIDICO ZONA NORTE';
-        if (zonas.sur.includes(agenciaNum)) return '23 - JURIDICO ZONA SUR';
-        return 'No determinada';
+        return agenciasSeleccionadas;
+    };
+
+    const actualizarBadgesAgencias = () => {
+        const agenciasSeleccionadas = obtenerAgenciasSeleccionadas();
+        const container = document.getElementById('agenciasSeleccionadasContainer');
+        const textoElement = document.getElementById('textoAgencias');
+
+        // Limpiar container pero preservar el textoElement
+        container.innerHTML = '';
+
+        // Crear un nuevo elemento de texto si no existe
+        let nuevoTextoElement = textoElement;
+        if (!nuevoTextoElement) {
+            nuevoTextoElement = document.createElement('span');
+            nuevoTextoElement.className = 'text-muted small';
+            nuevoTextoElement.id = 'textoAgencias';
+        }
+
+        if (agenciasSeleccionadas.length === 0) {
+            nuevoTextoElement.classList.remove('d-none');
+            nuevoTextoElement.textContent = 'Ninguna agencia seleccionada';
+            container.appendChild(nuevoTextoElement);
+        } else {
+            nuevoTextoElement.classList.add('d-none');
+
+            agenciasSeleccionadas.forEach(agencia => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary d-flex align-items-center gap-1';
+                badge.innerHTML = `
+                ${agencia}
+                <button type="button" class="btn-close btn-close-white btn-close-sm" 
+                        data-agencia="${agencia}" aria-label="Eliminar"></button>
+            `;
+                container.appendChild(badge);
+            });
+
+            // Agregar event listeners a los botones de eliminar
+            container.querySelectorAll('.btn-close').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const agenciaAEliminar = this.getAttribute('data-agencia');
+                    const checkbox = document.querySelector(`.agencia-checkbox[value="${agenciaAEliminar}"]`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+
+                        // Actualizar estado de "Seleccionar todas"
+                        const selectAllCheckbox = document.getElementById('selectAllAgencias');
+                        const allCheckboxes = document.querySelectorAll('.agencia-checkbox');
+                        const checkedCount = document.querySelectorAll('.agencia-checkbox:checked').length;
+
+                        selectAllCheckbox.checked = checkedCount === allCheckboxes.length;
+                        selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < allCheckboxes.length;
+
+                        actualizarBadgesAgencias();
+                        actualizarTabla();
+                    }
+                });
+            });
+
+            // Asegurarse de que el textoElement no esté en el container
+            if (nuevoTextoElement.parentNode === container) {
+                container.removeChild(nuevoTextoElement);
+            }
+        }
     };
 
 
-    asociados.forEach((asociado) => {
-        const zonaJuridica = determinarZonaJuridica(asociado.AAUX93);
-        const centroOperacion = `${asociado.AAUX93} - ${asociado.DESC03}`;
-        const sumaCredito = (Number(asociado.ESCR93) || 0) + (Number(asociado.ORCR93) || 0);
+    const aplicarFiltros = () => {
+        let datosFiltradosTemp = [...datosOriginales];
 
-        let fechaFormateada = '';
-        if (asociado.FTAG05) {
-            const fechaRaw = String(19000000 + parseInt(asociado.FTAG05));
-            const anio = parseInt(fechaRaw.substring(0, 4));
-            const mes = parseInt(fechaRaw.substring(4, 6)) - 1;
-            const dia = parseInt(fechaRaw.substring(6, 8));
-
-            fechaFormateada = `${dia.toString().padStart(2, '0')}/${meses[mes]}/${anio}`;
+        const agenciasSeleccionadas = obtenerAgenciasSeleccionadas();
+        if (agenciasSeleccionadas.length > 0) {
+            datosFiltradosTemp = datosFiltradosTemp.filter(asociado => {
+                const centroOperacion = `${asociado.AAUX93} - ${asociado.DESC03}`;
+                return agenciasSeleccionadas.includes(centroOperacion);
+            });
         }
 
-        let scoreBadge = '';
-        if (asociado.Score === 'F/D') {
-            scoreBadge = `<span class="badge bg-dark fs-6">F/D</span>`;
-        } else if (asociado.Score === 'S/E') {
-            scoreBadge = `<span class="badge bg-warning text-dark fs-6">S/E</span>`;
-        } else {
-            const scoreNum = Number(asociado.Score);
-            if (scoreNum > 650) {
-                scoreBadge = `<span class="badge bg-primary fs-6">${scoreNum}</span>`;
-            } else if (scoreNum === 650) {
-                scoreBadge = `<span class="badge bg-warning text-dark fs-6">${scoreNum}</span>`;
+        const filtroFechaInicio = $('#filtroFechaInicio').val();
+        const filtroFechaFin = $('#filtroFechaFin').val();
+
+        if (filtroFechaInicio || filtroFechaFin) {
+            const fechaInicio = filtroFechaInicio ? new Date(filtroFechaInicio) : null;
+            const fechaFin = filtroFechaFin ? new Date(filtroFechaFin) : null;
+
+            datosFiltradosTemp = datosFiltradosTemp.filter(asociado => {
+                if (!asociado.FTAG05) return false;
+
+                const fechaRaw = String(19000000 + parseInt(asociado.FTAG05));
+                const fechaAsociado = new Date(
+                    fechaRaw.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")
+                );
+
+                if (fechaInicio && fechaAsociado < fechaInicio) return false;
+                if (fechaFin && fechaAsociado > fechaFin) return false;
+
+                return true;
+            });
+        }
+
+
+        const filtroScore = $('#filtroScore').val();
+        if (filtroScore) {
+            datosFiltradosTemp = datosFiltradosTemp.filter(asociado => {
+                let score = asociado.Score;
+
+                // Normalizar strings especiales
+                if (typeof score === 'string') {
+                    if (score.toLowerCase().includes("falta")) score = "F/D";
+                    else if (score === "S/E") score = "S/E";
+                    else if (score.toLowerCase().includes("muerte")) score = "Q.E.P.D";
+                }
+
+                // Comparación con filtro
+                if (filtroScore === "SE") return score === "S/E";
+                if (filtroScore === "FD") return score === "F/D";
+                if (filtroScore === "QEPD") return score === "Q.E.P.D";
+
+                if (!isNaN(Number(score))) {
+                    const scoreNum = Number(score);
+                    if (filtroScore === "0-650") return scoreNum <= 650;
+                    if (filtroScore === "650+") return scoreNum > 650;
+                }
+
+                return false;
+            });
+        }
+
+        return datosFiltradosTemp;
+    };
+
+    const ordenarDatos = (datos, ordenFecha, ordenValor) => {
+        // ✅ SIEMPRE ordenar primero por agencia (código numérico)
+        return datos.sort((a, b) => {
+
+
+            // 2. Si hay orden por valor, aplicar ese criterio secundario
+            if (ordenValor) {
+                const valorA = (Number(a.ESCR93) || 0) + (Number(a.ORCR93) || 0);
+                const valorB = (Number(b.ESCR93) || 0) + (Number(b.ORCR93) || 0);
+                return ordenValor === 'asc' ? valorA - valorB : valorB - valorA;
+            }
+
+            // 3. Si no hay orden por valor, ordenar por fecha
+            const fechaA = a.FTAG05 ? new Date(String(19000000 + parseInt(a.FTAG05)).replace(
+                /(\d{4})(\d{2})(\d{2})/, "$1-$2-$3"
+            )) : new Date(9999, 11, 31);
+
+            const fechaB = b.FTAG05 ? new Date(String(19000000 + parseInt(b.FTAG05)).replace(
+                /(\d{4})(\d{2})(\d{2})/, "$1-$2-$3"
+            )) : new Date(9999, 11, 31);
+
+            return ordenFecha === 'asc' ? fechaA - fechaB : fechaB - fechaA;
+        });
+    };
+
+
+    const renderizarTabla = (datos) => {
+        let resultados = '';
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+        // Obtener fecha actual formateada
+        const hoy = new Date();
+        const dia = hoy.getDate().toString().padStart(2, '0');
+        const mes = meses[hoy.getMonth()];
+        const anio = hoy.getFullYear();
+        const fechaFormateada = `${dia}/${mes}/${anio}`;
+
+        const determinarZonaJuridica = (agencia) => {
+            const agenciaNum = parseInt(agencia);
+            const zonas = {
+                centro: [48, 80, 89, 94, 83, 13, 68, 73, 76, 90, 91, 92, 96, 93, 95],
+                norte: [87, 86, 85, 81, 84, 88, 98, 97, 82],
+                sur: [77, 49, 70, 42, 46, 45, 47, 78, 74, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 29]
+            };
+
+            if (zonas.centro.includes(agenciaNum)) return '21 - JURIDICO ZONA CENTRO';
+            if (zonas.norte.includes(agenciaNum)) return '22 - JURIDICO ZONA NORTE';
+            if (zonas.sur.includes(agenciaNum)) return '23 - JURIDICO ZONA SUR';
+            return 'No determinada';
+        };
+
+        // Preparar datos para Excel
+        const datosParaExcel = datos.map(asociado => {
+            const zonaJuridica = determinarZonaJuridica(asociado.AAUX93);
+            const centroOperacion = `${asociado.AAUX93} - ${asociado.DESC03}`;
+            const sumaCredito = (Number(asociado.ESCR93) || 0) + (Number(asociado.ORCR93) || 0);
+
+            let fechaFormateada = '';
+            if (asociado.FTAG05) {
+                const fechaRaw = String(19000000 + parseInt(asociado.FTAG05));
+                const anio = parseInt(fechaRaw.substring(0, 4));
+                const mes = parseInt(fechaRaw.substring(4, 6)) - 1;
+                const dia = parseInt(fechaRaw.substring(6, 8));
+                fechaFormateada = `${dia.toString().padStart(2, '0')}/${meses[mes]}/${anio}`;
+            }
+
+            // Extraer solo el texto del score (sin HTML)
+            let scoreTexto = '';
+            if (asociado.Score === 'F/D') {
+                scoreTexto = 'F/D';
+            } else if (asociado.Score === 'S/E') {
+                scoreTexto = 'S/E';
+            } else if (!isNaN(Number(asociado.Score))) {
+                scoreTexto = asociado.Score;
             } else {
-                scoreBadge = `<span class="badge bg-danger fs-6">${scoreNum}</span>`;
+                scoreTexto = 'Q.E.P.D';
             }
+
+            // Nueva columna: Recaudación
+            const recaudacion = `00-${asociado.DEPE93} ${asociado.DDEP93}`;
+
+            return {
+                agencia: centroOperacion,
+                recaudacion: recaudacion,
+                agenciaCodigo: Number(asociado.AAUX93),
+                zonaJuridica: zonaJuridica,
+                nit: Number(asociado.NNIT93).toLocaleString('es-CO'),
+                tipoCuenta: asociado.DCTA93,
+                numeroCuenta: asociado.NCTA93,
+                nombre: asociado.DNOM93,
+                score: scoreTexto,
+                valor: sumaCredito,
+                fecha: fechaFormateada
+            };
+        });
+
+        datos.forEach((asociado) => {
+            console.log(asociado);
+
+            const zonaJuridica = determinarZonaJuridica(asociado.AAUX93);
+            const centroOperacion = `${asociado.AAUX93} - ${asociado.DESC03}`;
+            const sumaCredito = (Number(asociado.ESCR93) || 0) + (Number(asociado.ORCR93) || 0);
+
+            let fechaFormateada = '';
+            if (asociado.FTAG05) {
+                const fechaRaw = String(19000000 + parseInt(asociado.FTAG05));
+                const anio = parseInt(fechaRaw.substring(0, 4));
+                const mes = parseInt(fechaRaw.substring(4, 6)) - 1;
+                const dia = parseInt(fechaRaw.substring(6, 8));
+
+                fechaFormateada = `${dia.toString().padStart(2, '0')}/${meses[mes]}/${anio}`;
+            }
+
+            let scoreBadge = '';
+            if (asociado.Score === 'F/D') {
+                scoreBadge = `<span class="badge bg-dark fs-6">F/D</span>`;
+            } else if (asociado.Score === 'S/E') {
+                scoreBadge = `<span class="badge bg-warning text-dark fs-6">S/E</span>`;
+            } else if (!isNaN(Number(asociado.Score))) {
+                const scoreNum = Number(asociado.Score);
+                if (scoreNum > 650) {
+                    scoreBadge = `<span class="badge bg-primary fs-6">${scoreNum}</span>`;
+                } else if (scoreNum === 650) {
+                    scoreBadge = `<span class="badge bg-warning text-dark fs-6">${scoreNum}</span>`;
+                } else {
+                    scoreBadge = `<span class="badge bg-danger fs-6">${scoreNum}</span>`;
+                }
+            } else {
+                scoreBadge = `<span class="badge bg-purple text-white fs-6">Q.E.P.D</span>`;
+            }
+
+            let semaforoHTML = '';
+            if (asociado.FechaInsercion && asociado.FechaInsercion !== 'F/D') {
+                const fechaInsercion = new Date(asociado.FechaInsercion);
+                const hoy = new Date();
+                const diffTime = Math.abs(hoy - fechaInsercion);
+                const diffDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                let estado = '';
+                if (diffDias <= 170) {
+                    estado = 'green';
+                } else if (diffDias >= 171 && diffDias <= 179) {
+                    estado = 'yellow';
+                } else if (diffDias >= 180) {
+                    estado = 'red';
+                }
+
+                semaforoHTML = `
+                <div class="semaforo mt-1">
+                    <div class="circle ${estado === 'green' ? 'active-green' : ''}"></div>
+                    <div class="circle ${estado === 'yellow' ? 'active-yellow' : ''}"></div>
+                    <div class="circle ${estado === 'red' ? 'active-red' : ''}"></div>
+                    <span class="text dark fw-bold">${diffDias} días</span>
+                </div>
+            `;
+            } else {
+                semaforoHTML = `
+                <div class="semaforo mt-1">
+                    <div class="circle"></div>
+                    <div class="circle"></div>
+                    <div class="circle"></div>
+                    <span class="text dark fw-bold">Sin info</span>
+                </div>
+            `;
+            }
+
+            resultados += `
+            <tr>
+                <td class="text-center">${centroOperacion}</td>
+                <td>${Number(asociado.NNIT93).toLocaleString('es-CO')}</td>
+                <td>${asociado.DCTA93}</td>
+                <td class="text-center">${asociado.NCTA93}</td>
+                <td>${asociado.DNOM93}</td>
+                <td class="text-center">
+                    <div class="d-flex flex-column align-items-center">
+                        ${scoreBadge}
+                        ${semaforoHTML}
+                    </div>
+                </td>
+                <td class="text-center">$ ${sumaCredito.toLocaleString()}</td>
+                <td class="text-center">${fechaFormateada}</td>
+                <td class="text-center">
+                   <button class="btn btn-md ver-mas" data-id="${asociado.NNIT93}" title="Ver más"> <i class="fas fa-eye"></i> 
+                   </button>
+                    <button class="btn btn-md ver-juridico" data-id="${asociado.NCTA93}" title="Estado Jurídico">
+                        <i class="fa-solid fa-scale-unbalanced-flip"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        });
+
+        if ($.fn.DataTable.isDataTable('#tablaCastigados')) {
+            $('#tablaCastigados').DataTable().clear().destroy();
         }
 
-        // 🔹 Semáforo para la FechaInsercion
-        let semaforoHTML = '';
-        if (asociado.FechaInsercion && asociado.FechaInsercion !== 'F/D') {
-            const fechaInsercion = new Date(asociado.FechaInsercion);
-            const hoy = new Date();
-            const diffTime = Math.abs(hoy - fechaInsercion);
-            const diffDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        $("#tablaCastigados tbody").html(resultados);
 
-            let estado = '';
-            if (diffDias <= 170) {
-                estado = 'green';
-            } else if (diffDias >= 171 && diffDias <= 179) {
-                estado = 'yellow';
-            } else if (diffDias >= 180) {
-                estado = 'red';
-            }
+        // Inicializar DataTable
+        table = $('#tablaCastigados').DataTable({
+            pageLength: 7,
+            lengthMenu: [7, 16, 25, 50, 100],
+            order: [],
+            language: {
+                sProcessing: "Procesando...",
+                sLengthMenu: "Mostrar _MENU_ registros",
+                sZeroRecords: "No se encontraron resultados",
+                sEmptyTable: "Ningún dato disponible en esta tabla",
+                sInfo: "Mostrando del _START_ al _END_ de _TOTAL_ registros",
+                sInfoEmpty: "Mostrando 0 a 0 de 0 registros",
+                sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+                sSearch: "Buscar:",
+                oPaginate: {
+                    sNext: "Siguiente",
+                    sPrevious: "Anterior"
+                }
+            },
+            dom:
+                "<'row mb-2'<'col-sm-6 d-flex align-items-center'l><'col-sm-6 d-flex justify-content-end'Bf>>" +
+                "rt" +
+                "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Exportar Excel',
+                    title: `Asociados Castigados Corte ${fechaFormateada}`,
+                    className: 'btn btn-success text-dark fw-bold me-2',
+                    action: function (e, dt, button, config) {
+                        // Ordenar datos por el código AAUX93 que guardaste en agenciaCodigo
+                        const datosOrdenados = datosParaExcel.slice().sort((a, b) => (a.agenciaCodigo || 0) - (b.agenciaCodigo || 0));
 
-            semaforoHTML = `
-                        <div class="semaforo mt-1">
-                            <div class="circle ${estado === 'green' ? 'active-green' : ''}"></div>
-                            <div class="circle ${estado === 'yellow' ? 'active-yellow' : ''}"></div>
-                            <div class="circle ${estado === 'red' ? 'active-red' : ''}"></div>
-                            <span class="text dark fw-bold">${diffDias} días</span>
-                        </div>
-                    `;
-        } else {
-            semaforoHTML = `
-                        <div class="semaforo mt-1">
-                            <div class="circle"></div>
-                            <div class="circle"></div>
-                            <div class="circle"></div>
-                            <span class="text dark fw-bold">Sin info</span>
-                        </div>
-                    `;
-        }
+                        // Crear workbook con ExcelJS
+                        const workbook = new ExcelJS.Workbook();
+                        const worksheet = workbook.addWorksheet('Asociados Castigados', { properties: { defaultRowHeight: 18 } });
 
-        resultados += `
-                <tr>
-                    <td class="text-center">${centroOperacion}</td>
-             
-                    <td>${Number(asociado.NNIT93).toLocaleString('es-CO')}</td>
-                    <td>${asociado.DCTA93}</td>
-                    <td class="text-center">${asociado.NCTA93}</td>
-                    <td>${asociado.DNOM93}</td>
-                    <td class="text-center">
-                        <div class="d-flex flex-column align-items-center">
-                            ${scoreBadge}
-                            ${semaforoHTML}
-                        </div>
-                    </td>
-                    <td class="text-center">$ ${sumaCredito.toLocaleString()}</td>
-                    <td class="text-center">${fechaFormateada}</td>
-                    <td class="text-center">
-                        <button class="btn btn-md ver-mas" data-id="${asociado.NNIT93}" title="Ver más">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-md ver-juridico" data-id="${asociado.NCTA93}" title="Estado Jurídico">
-                            <i class="fa-solid fa-scale-unbalanced-flip"></i>
-                        </button>
-                    </td>
-                </tr>
-                `;
-    });
+                        // --- FILA 1: TITULO
+                        worksheet.mergeCells('A1:I1');
+                        const titleCell = worksheet.getCell('A1');
+                        titleCell.value = `Asociados Castigados Corte ${fechaFormateada}`;
+                        titleCell.font = { bold: true, size: 14 };
+                        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+                        // --- FILA 2: FECHA
+                        worksheet.mergeCells('A2:I2');
+                        const dateCell = worksheet.getCell('A2');
+                        const now = new Date();
+                        const opcionesFecha = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+                        const fechaStr = now.toLocaleDateString('es-ES', opcionesFecha).replace(/\./g, '');
+                        const horaStr = now.toLocaleTimeString('es-ES', { hour12: true });
+                        dateCell.value = `Fecha de generación: ${fechaStr} ${horaStr}`;
+                        dateCell.font = { bold: true, size: 11 };
+                        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+                        // dejar fila 3 vacía (espacio)
+                        const headers = [
+                            'Agencia',
+                            'Recaudación',
+                            'Zona Jurídica',
+                            'Cédula',
+                            'Asociados',
+                            'Cuenta',
+                            'Nomina',
+                            'Score',
+                            'Valor Castigado',
+                            'Fecha Castigo'
+                        ];
 
 
-    if ($.fn.DataTable.isDataTable('#tablaCastigados')) {
-        $('#tablaCastigados').DataTable().clear().destroy();
-    }
+                        worksheet.addRow([]); // fila 3 vacía
+                        const headerRow = worksheet.addRow(headers);
+                        headerRow.font = { bold: true };
+                        headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
 
-    $("#tablaCastigados tbody").html(resultados);
+                        worksheet.columns = [
+                            { key: 'agencia', width: 30 },
+                            { key: 'recaudacion', width: 25 },
+                            { key: 'zona', width: 30 },
+                            { key: 'nit', width: 18 },
+                            { key: 'tipoCuenta', width: 15 },
+                            { key: 'numeroCuenta', width: 18 },
+                            { key: 'nombre', width: 32 },
+                            { key: 'score', width: 10 },
+                            { key: 'valor', width: 18 },
+                            { key: 'fecha', width: 16 }
+                        ];
 
-    const table = $('#tablaCastigados').DataTable({
-        pageLength: 7,
-        lengthMenu: [7, 16, 25, 50, 100],
-        language: {
-            sProcessing: "Procesando...",
-            sLengthMenu: "Mostrar _MENU_ registros",
-            sZeroRecords: "No se encontraron resultados",
-            sEmptyTable: "Ningún dato disponible en esta tabla",
-            sInfo: "Mostrando del _START_ al _END_ de _TOTAL_ registros",
-            sInfoEmpty: "Mostrando 0 a 0 de 0 registros",
-            sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
-            sSearch: "Buscar:",
-            oPaginate: {
-                sNext: "Siguiente",
-                sPrevious: "Anterior"
-            }
-        },
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
-                titleAttr: 'Exportar a Excel',
-                className: 'btn btn-success mb-2',
-                exportOptions: {
-                    columns: ':not(:last-child)' // Excluye la columna de botones
+
+
+
+                        // Agregar los datos (fila 5 en adelante)
+                        datosOrdenados.forEach(item => {
+                            const valorNum = Number(item.valor) || 0;
+                            worksheet.addRow({
+                                agencia: item.agencia,
+                                recaudacion: item.recaudacion,
+                                zona: item.zonaJuridica,
+                                nit: item.nit,
+                                tipoCuenta: item.tipoCuenta,
+                                numeroCuenta: item.numeroCuenta,
+                                nombre: item.nombre,
+                                score: item.score,
+                                valor: valorNum,
+                                fecha: item.fecha
+                            });
+                        });
+
+                        // Formatear columna H como moneda
+                        const firstDataRow = headerRow.number + 1;
+                        const lastDataRow = firstDataRow + datosOrdenados.length - 1;
+                        for (let r = firstDataRow; r <= lastDataRow; r++) {
+                            worksheet.getCell(`I${r}`).numFmt = '"$"#,##0';
+                            worksheet.getCell(`I${r}`).alignment = { horizontal: 'right', vertical: 'middle' };
+
+                            // Centrar columna E (numeroCuenta) y G (score)
+                            worksheet.getCell(`F${r}`).alignment = { horizontal: 'center', vertical: 'middle' };
+                            worksheet.getCell(`H${r}`).alignment = { horizontal: 'center', vertical: 'middle' };
+                        }
+                        // Calcular total y añadir fila vacía + total
+                        const totalValor = datosOrdenados.reduce((acc, it) => acc + (Number(it.valor) || 0), 0);
+                        worksheet.addRow([]);
+                        const totalRow = worksheet.addRow({ agencia: 'TOTAL', valor: totalValor });
+                        const totalRowNumber = totalRow.number;
+
+                        // Colores y estilos para TOTAL
+                        const fondoTotal = 'FFFABF8F';
+
+                        const totalLabelCell = worksheet.getCell(`A${totalRowNumber}`);
+                        totalLabelCell.font = { bold: true, color: { argb: 'FF000000' } }; // negro
+                        totalLabelCell.alignment = { horizontal: 'left', vertical: 'middle' };
+                        totalLabelCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fondoTotal } };
+
+                        const totalValueCell = worksheet.getCell(`I${totalRowNumber}`);
+                        totalValueCell.font = { bold: true, color: { argb: 'FF000000' } }; // negro
+                        totalValueCell.numFmt = '"$"#,##0';
+                        totalValueCell.alignment = { horizontal: 'right', vertical: 'middle' };
+                        totalValueCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fondoTotal } };
+
+                        // Fondo en toda la fila del total
+                        for (let col = 1; col <= 9; col++) {
+                            const cell = worksheet.getCell(totalRowNumber, col);
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fondoTotal } };
+                        }
+
+
+                        // --- RESUMEN POR AGENCIA  ---
+                        worksheet.addRow([]); // fila vacía antes del resumen
+
+                        // Encabezado del resumen
+                        const resumenHeader = worksheet.addRow([
+                            'Agencia',
+                            'Cuentas',
+                            'Valor castigado'
+                        ]);
+
+                        const headerBg = 'FF305496';
+                        for (let col = 1; col <= 3; col++) {
+                            const cell = resumenHeader.getCell(col);
+                            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+                        }
+
+                        // Agrupar datos por agencia
+                        const resumenAgencia = {};
+                        datosOrdenados.forEach(it => {
+                            const ag = it.agencia || 'SIN AGENCIA';
+                            if (!resumenAgencia[ag]) {
+                                resumenAgencia[ag] = { cantidad: 0, suma: 0 };
+                            }
+                            resumenAgencia[ag].cantidad += 1;
+                            resumenAgencia[ag].suma += Number(it.valor) || 0;
+                        });
+
+                        // Escribir filas de resumen
+                        let totalCuentas = 0;
+                        let totalSuma = 0;
+
+                        Object.entries(resumenAgencia).forEach(([agencia, data]) => {
+                            const row = worksheet.addRow([
+                                agencia,
+                                data.cantidad,
+                                data.suma
+                            ]);
+
+                            totalCuentas += data.cantidad;
+                            totalSuma += data.suma;
+
+                            row.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+                            row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+                            row.getCell(3).numFmt = '"$"#,##0';
+                            row.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
+                        });
+
+                        // Fila TOTAL del resumen
+                        const totalResumenRow = worksheet.addRow([
+                            'TOTAL',
+                            totalCuentas,
+                            totalSuma
+                        ]);
+
+                        const fondoTotalResumen = 'FFFABF8F';
+
+                        // Celda A (Agencia)
+                        const totalAgenciaCell = totalResumenRow.getCell(1);
+                        totalAgenciaCell.font = { bold: true, color: { argb: 'FF000000' } };
+                        totalAgenciaCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fondoTotalResumen } };
+                        totalAgenciaCell.alignment = { horizontal: 'left', vertical: 'middle' };
+
+                        // Celda B (Cantidad)
+                        const totalCantidadCell = totalResumenRow.getCell(2);
+                        totalCantidadCell.font = { bold: true, color: { argb: 'FF000000' } };
+                        totalCantidadCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fondoTotalResumen } };
+                        totalCantidadCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+                        // Celda C (Suma del valor castigado)
+                        const totalSumaCell = totalResumenRow.getCell(3);
+                        totalSumaCell.font = { bold: true, color: { argb: 'FF000000' } };
+                        totalSumaCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fondoTotalResumen } };
+                        totalSumaCell.numFmt = '"$"#,##0';
+                        totalSumaCell.alignment = { horizontal: 'right', vertical: 'middle' };
+
+                        // --- Opcional: bordes de la tabla dinámica ---
+                        const startRow = resumenHeader.number;
+                        const endRow = totalResumenRow.number;
+                        for (let r = startRow; r <= endRow; r++) {
+                            const row = worksheet.getRow(r);
+                            row.eachCell(cell => {
+                                cell.border = {
+                                    top: { style: 'thin', color: { argb: 'FF000000' } },
+                                    left: { style: 'thin', color: { argb: 'FF000000' } },
+                                    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                                    right: { style: 'thin', color: { argb: 'FF000000' } }
+                                };
+                            });
+                        }
+
+
+                        // --- RESUMEN POR ZONA JURÍDICA ---
+
+                        // Encabezado del resumen de Zonas (a la derecha del resumen de agencias)
+                        const resumenZonaHeader = worksheet.getRow(resumenHeader.number); // misma fila
+                        resumenZonaHeader.getCell(5).value = 'Zona Jurídica';
+                        resumenZonaHeader.getCell(6).value = 'Cuentas';
+                        resumenZonaHeader.getCell(7).value = 'Valor castigado';
+
+                        // Estilos encabezado
+                        const headerZonaBg = 'FF305496';
+                        for (let col = 5; col <= 7; col++) {
+                            const cell = resumenZonaHeader.getCell(col);
+                            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerZonaBg } };
+                        }
+
+                        // Agrupar datos por zonaJuridica
+                        const resumenZona = {};
+                        datosOrdenados.forEach(it => {
+                            const zona = it.zonaJuridica || 'No determinada';
+                            if (!resumenZona[zona]) {
+                                resumenZona[zona] = { cantidad: 0, suma: 0 };
+                            }
+                            resumenZona[zona].cantidad += 1;
+                            resumenZona[zona].suma += Number(it.valor) || 0;
+                        });
+
+                        // Escribir filas de resumen de zonas
+                        let totalCuentasZona = 0;
+                        let totalSumaZona = 0;
+                        let rowIndex = resumenHeader.number + 1;
+
+                        Object.entries(resumenZona).forEach(([zona, data]) => {
+                            const row = worksheet.getRow(rowIndex);
+
+                            row.getCell(5).value = zona;
+                            row.getCell(6).value = data.cantidad;
+                            row.getCell(7).value = data.suma;
+
+                            totalCuentasZona += data.cantidad;
+                            totalSumaZona += data.suma;
+
+                            row.getCell(5).alignment = { horizontal: 'left', vertical: 'middle' };
+                            row.getCell(6).alignment = { horizontal: 'center', vertical: 'middle' };
+                            row.getCell(7).numFmt = '"$"#,##0';
+                            row.getCell(7).alignment = { horizontal: 'right', vertical: 'middle' };
+
+                            rowIndex++;
+                        });
+
+                        // Fila TOTAL del resumen de zonas
+                        const totalResumenZonaRow = worksheet.getRow(rowIndex);
+                        totalResumenZonaRow.getCell(5).value = 'TOTAL';
+                        totalResumenZonaRow.getCell(6).value = totalCuentasZona;
+                        totalResumenZonaRow.getCell(7).value = totalSumaZona;
+
+                        const fondoTotalZona = 'FFFABF8F';
+
+                        // Estilos para TOTAL
+                        for (let col = 5; col <= 7; col++) {
+                            const cell = totalResumenZonaRow.getCell(col);
+                            cell.font = { bold: true, color: { argb: 'FF000000' } };
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fondoTotalZona } };
+                            cell.alignment = { horizontal: col === 5 ? 'left' : (col === 6 ? 'center' : 'right'), vertical: 'middle' };
+                        }
+                        totalResumenZonaRow.getCell(7).numFmt = '"$"#,##0';
+
+                        // --- Bordes tabla Zonas ---
+                        for (let r = resumenHeader.number; r <= totalResumenZonaRow.number; r++) {
+                            for (let c = 5; c <= 7; c++) {
+                                worksheet.getRow(r).getCell(c).border = {
+                                    top: { style: 'thin', color: { argb: 'FF000000' } },
+                                    left: { style: 'thin', color: { argb: 'FF000000' } },
+                                    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                                    right: { style: 'thin', color: { argb: 'FF000000' } }
+                                };
+                            }
+                        }
+                        // Altura de títulos
+                        worksheet.getRow(1).height = 24;
+                        worksheet.getRow(2).height = 20;
+
+                        // Descargar
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            const filename = `Asociados_Castigados_${fechaFormateada.replace(/\//g, '_')}.xlsx`;
+                            saveAs(new Blob([buffer], { type: 'application/octet-stream' }), filename);
+                        }).catch(function (err) {
+                            console.error('Error generando Excel:', err);
+                            alert('Ocurrió un error al generar el Excel.');
+                        });
+                    }
+
+
+                }
+
+            ]
+        });
+
+        // Resto del código sin cambios...
+        $('#ordenValor').off('change').on('change', function () {
+            actualizarTabla();
+        });
+
+        $('#tablaCastigados')
+            .off('click', '.ver-mas')
+            .on('click', '.ver-mas', async function () {
+                const cedula = $(this).data('id');
+                await cargarDetallesAsociado(cedula);
+                const modal = new bootstrap.Modal(document.getElementById('modalDetalleAsociado'));
+                modal.show();
+            });
+
+        $('#tablaCastigados')
+            .off('click', '.ver-juridico')
+            .on('click', '.ver-juridico', async function () {
+                const cuenta = $(this).data('id');
+                document.getElementById('contenidoModalAsociado').innerHTML = `
+      <div class="text-center my-5">
+          <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2">Cargando información jurídica...</p>
+      </div>
+  `;
+                const modal = new bootstrap.Modal(document.getElementById('modalDetalleAsociado'));
+                modal.show();
+                await cargarProcesoJuridico(cuenta);
+            });
+
+        return table;
+    };
+
+
+    const actualizarTabla = () => {
+        datosFiltrados = aplicarFiltros();
+        const ordenFecha = $('#ordenFecha').val() || 'asc';
+        const ordenValor = $('#ordenValor').val() || '';
+        const datosOrdenados = ordenarDatos(datosFiltrados, ordenFecha, ordenValor);
+
+        renderizarTabla(datosOrdenados);
+    };
+
+
+    const inicializarCheckboxesAgencias = () => {
+        const agenciasUnicas = [];
+        datosOriginales.forEach(a => {
+            if (a.AAUX93 && a.DESC03) {
+                const centroOperacion = `${a.AAUX93} - ${a.DESC03}`;
+                if (!agenciasUnicas.find(ag => ag.codigo === a.AAUX93)) {
+                    agenciasUnicas.push({
+                        codigo: parseInt(a.AAUX93),
+                        nombre: a.DESC03,
+                        texto: centroOperacion
+                    });
                 }
             }
-        ]
+        });
+
+        agenciasUnicas.sort((a, b) => a.codigo - b.codigo);
+        agenciasDisponibles = agenciasUnicas;
+
+        const checkboxesContainer = document.getElementById('checkboxesAgencias');
+        checkboxesContainer.innerHTML = '';
+
+        agenciasUnicas.forEach(ag => {
+            const checkboxId = `agencia-${ag.codigo}`;
+            const checkboxHTML = `
+                <div class="form-check mb-2">
+                    <input class="form-check-input agencia-checkbox" type="checkbox" 
+                           value="${ag.texto}" id="${checkboxId}">
+                    <label class="form-check-label" for="${checkboxId}">
+                        ${ag.texto}
+                    </label>
+                </div>
+            `;
+            checkboxesContainer.innerHTML += checkboxHTML;
+        });
+
+        // Event listener para "Seleccionar todas"
+        document.getElementById('selectAllAgencias').addEventListener('change', function () {
+            const checkboxes = document.querySelectorAll('.agencia-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            actualizarBadgesAgencias();
+            actualizarTabla();
+        });
+
+        // Event listeners para checkboxes individuales
+        document.querySelectorAll('.agencia-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const selectAllCheckbox = document.getElementById('selectAllAgencias');
+                const allCheckboxes = document.querySelectorAll('.agencia-checkbox');
+                const checkedCount = document.querySelectorAll('.agencia-checkbox:checked').length;
+
+                selectAllCheckbox.checked = checkedCount === allCheckboxes.length;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < allCheckboxes.length;
+
+                actualizarBadgesAgencias();
+                actualizarTabla();
+            });
+        });
+    };
+
+    // Event listeners para los filtros
+
+
+    $('#filtroFechaInicio, #filtroFechaFin').off('change').on('change', function () {
+        actualizarTabla();
     });
 
-    // Usar event delegation en el contenedor de la tabla
-    $('#tablaCastigados').on('click', '.ver-mas', async function () {
-        const cedula = $(this).data('id');
-        await cargarDetallesAsociado(cedula);
 
-        // Mostrar el modal usando Bootstrap 5
-        const modal = new bootstrap.Modal(document.getElementById('modalDetalleAsociado'));
-        modal.show();
+    $('#ordenFecha').off('change').on('change', function () {
+        actualizarTabla();
     });
 
-    $('#tablaCastigados').on('click', '.ver-juridico', async function () {
-        const cuenta = $(this).data('id');
-
-        // Mostrar spinner de carga
-        document.getElementById('contenidoModalAsociado').innerHTML = `
-        <div class="text-center my-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-2">Cargando información jurídica...</p>
-        </div>
-    `;
-
-        // Mostrar el modal inmediatamente
-        const modal = new bootstrap.Modal(document.getElementById('modalDetalleAsociado'));
-        modal.show();
-
-        // Cargar los datos
-        await cargarProcesoJuridico(cuenta);
+    $('#filtroScore').off('change').on('change', function () {
+        actualizarTabla();
     });
 
+
+    // Botón para limpiar filtros
+    $('#limpiarFiltros').off('click').on('click', function () {
+        // Limpiar checkboxes de agencias
+        document.getElementById('selectAllAgencias').checked = false;
+        document.querySelectorAll('.agencia-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        $('#filtroFechaInicio').val("");
+        $('#filtroFechaFin').val("");
+        $('#ordenFecha').val("asc");
+        $('#filtroScore').val("");
+        $('#ordenValor').val("");
+        actualizarBadgesAgencias();
+        actualizarTabla();
+    });
+
+
+    // Renderizar tabla inicial
+    inicializarCheckboxesAgencias();
+    actualizarBadgesAgencias();
+    actualizarTabla();
 };
+
+document.getElementById("toggleFiltros").addEventListener("click", () => {
+    const filtros = document.querySelector(".filtros-container");
+    filtros.classList.toggle("d-none");
+});
 
 //CARGAR DETALLES
 async function cargarDetallesAsociado(cedula) {
@@ -322,15 +971,39 @@ function mostrarDetallesEnModal(asociado) {
     modalContent.innerHTML = '';
 
     // Formatear fecha de castigo
-    let fechaFormateada = 'No disponible';
-    if (asociado.FTAG05) {
-        const fechaRaw = String(19000000 + parseInt(asociado.FTAG05));
+    function formatearFecha(fechaNumero) {
+        if (!fechaNumero) return 'No disponible';
+
+        const fechaRaw = String(19000000 + parseInt(fechaNumero));
         const anio = fechaRaw.substring(0, 4);
-        const mesNumero = parseInt(fechaRaw.substring(4, 6)) - 1;
+        const mesNumero = parseInt(fechaRaw.substring(4, 6)) - 1; // JS usa 0-11
         const dia = fechaRaw.substring(6, 8);
         const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        fechaFormateada = `${dia}/${meses[mesNumero]}/${anio}`;
+
+        return `${dia}/${meses[mesNumero]}/${anio}`;
     }
+
+    // Uso:
+    let fechaFTAG05 = formatearFecha(asociado.FTAG05);
+    let fechaFRIP05 = formatearFecha(asociado.FRIP05);
+
+
+    function formatearFechaNacimiento(fechaNumero) {
+        if (!fechaNumero) return 'No disponible';
+
+        const fechaStr = String(fechaNumero);
+        if (fechaStr.length !== 8) return 'Formato inválido';
+
+        const anio = fechaStr.substring(0, 4);
+        const mesNumero = parseInt(fechaStr.substring(4, 6)) - 1;
+        const dia = fechaStr.substring(6, 8);
+
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+        return `${dia}/${meses[mesNumero]}/${anio}`;
+    }
+
 
     // Sumar créditos
     const sumaCredito = (Number(asociado.ESCR93) || 0) + (Number(asociado.ORCR93) || 0);
@@ -374,14 +1047,13 @@ function mostrarDetallesEnModal(asociado) {
     };
     const estado = estadosAsociado[asociado.INDC05] || { texto: "No definido", clase: "bg-dark" };
 
-
     // 🔹 Badge de Score
     let scoreBadge = '';
     if (asociado.Score === 'Falta DataCrédito') {
-        scoreBadge = `<span class="badge bg-dark fs-6">Falta DataCrédito</span>`;
+        scoreBadge = `<span class="badge bg-dark fs-6">F/D</span>`;
     } else if (asociado.Score === 'S/E') {
         scoreBadge = `<span class="badge bg-warning text-dark fs-6">S/E</span>`;
-    } else {
+    } else if (!isNaN(Number(asociado.Score))) {
         const scoreNum = Number(asociado.Score);
         if (scoreNum > 650) {
             scoreBadge = `<span class="badge bg-primary fs-6">${scoreNum}</span>`;
@@ -390,7 +1062,11 @@ function mostrarDetallesEnModal(asociado) {
         } else {
             scoreBadge = `<span class="badge bg-danger fs-6">${scoreNum}</span>`;
         }
+    } else {
+        scoreBadge = `<span class="badge bg-purple text-white fs-6">Q.E.P.D</span>`;
     }
+
+
 
     // 🔹 Semáforo para la FechaInsercion
     let semaforoHTML = '';
@@ -693,7 +1369,13 @@ function mostrarDetallesEnModal(asociado) {
                  <h4 class="titulo-seccion">
                         <i class="fas fa-id-card"></i> DATOS DEL ASOCIADO 
                         <span class="badge ${estado.clase} ms-2">${estado.texto}</span>
+                        ${asociado.FRIP05 ? `
+                            <span class="badge bg-purple ms-2">
+                                <i class="fas fa-user-slash me-1"></i> Q.E.P.D
+                            </span>
+                        ` : ''}
                     </h4>
+
                 <div class="grid-datos">
                     <div class="dato-legal">
                         <span class="etiqueta">Nombre completo:</span>
@@ -717,7 +1399,7 @@ function mostrarDetallesEnModal(asociado) {
                     </div>
                     <div class="dato-legal">
                         <span class="etiqueta">Fecha de castigo:</span>
-                        <span class="valor">${fechaFormateada}</span>
+                        <span class="valor">${fechaFTAG05}</span>
                     </div>
                      <div class="dato-legal">
                         <span class="etiqueta">Score DATACRÉDITO:</span>
@@ -727,6 +1409,13 @@ function mostrarDetallesEnModal(asociado) {
                         <span class="etiqueta">Vigencia:</span>
                         <span class="valor">${semaforoHTML}</span>
                     </div>
+                   ${asociado.FRIP05 ? `
+                    <div class="dato-legal">
+                        <span class="etiqueta text-danger">Fecha Fallecido:</span>
+                        <span class="valor">${fechaFRIP05}</span>
+                    </div>
+                    ` : ''}
+
                 </div>
             </div>
 
@@ -894,8 +1583,8 @@ function mostrarDetallesEnModal(asociado) {
                     </div>
                     <div class="dato-legal">
                         <span class="etiqueta">Fecha de nacimiento:</span>
-                        <span class="valor">${formatearFecha(asociado.FECN05)}</span>
-                    </div>
+                        <span class="valor">${formatearFechaNacimiento(asociado.FECN05)}</span>
+                    </div>  
                     <div class="dato-legal">
                         <span class="etiqueta">Edad:</span>
                         <span class="valor">${calcularEdad(asociado.FECN05)}</span>
@@ -1321,7 +2010,7 @@ function mostrarProcesoJuridicoEnModal(procesos) {
                                             </div>
                                             <div class="card-body">
                                                 <p><strong>Observación:</strong> ${observacion || 'Sin observaciones registradas'}</p>
-                                                <p><strong>Fecha medida:</strong> ${fecha || 'Sin fecha'}</p>
+                                                <p><strong>Fecha medida:</strong> ${formatearFecha(fecha)}</p>
                                                 <p><strong>Usuario:</strong> ${usuario || 'Sin usuario'}</p>
                                             </div>
                                         </div>
@@ -1572,7 +2261,7 @@ function actualizarFechaCorte() {
 
     let horas = ahora.getHours();
     const minutos = ahora.getMinutes().toString().padStart(2, '0');
-    const ampm = horas >= 12 ? 'P.m' : 'A.m';
+    const ampm = horas >= 12 ? 'P.M' : 'A.M';
     horas = horas % 12;
     horas = horas ? horas : 12;
 
