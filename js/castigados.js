@@ -247,22 +247,55 @@ const mostrar = (asociados) => {
             });
         }
 
+        const filtroRecaudacion = $('#filtroRecaudacion').val();
+        if (filtroRecaudacion) {
+            datosFiltradosTemp = datosFiltradosTemp.filter(asociado => {
+                const depe93 = parseInt(asociado.DEPE93);
+
+                switch (filtroRecaudacion) {
+                    case 'LEY_INSOLVENCIA':
+                        return depe93 === 59;
+
+                    case 'SALDO_MINIMO':
+                        return depe93 === 0 || depe93 === 46;
+
+                    case 'SIN_MEDIDA_CAUTELAR':
+                        return depe93 === 51 || depe93 === 52 || depe93 === 53 || depe93 === 54;
+
+                    case 'CARTERA_PROBLEMA':
+                        return depe93 === 66;
+
+                    case 'EMBARGO_BIENES':
+                        return depe93 === 72;
+
+                    case 'EMBARGO_SECUESTRADO':
+                        return depe93 === 73;
+
+                    case 'CC_REMATE':
+                        return depe93 === 74;
+
+                    case 'SIN_AMNISTIA':
+                        return depe93 === 99;
+
+                    default:
+                        return true;
+                }
+            });
+        }
+
         return datosFiltradosTemp;
+
     };
 
     const ordenarDatos = (datos, ordenFecha, ordenValor) => {
-        // ✅ SIEMPRE ordenar primero por agencia (código numérico)
+
         return datos.sort((a, b) => {
 
-
-            // 2. Si hay orden por valor, aplicar ese criterio secundario
             if (ordenValor) {
                 const valorA = (Number(a.ESCR93) || 0) + (Number(a.ORCR93) || 0);
                 const valorB = (Number(b.ESCR93) || 0) + (Number(b.ORCR93) || 0);
                 return ordenValor === 'asc' ? valorA - valorB : valorB - valorA;
             }
-
-            // 3. Si no hay orden por valor, ordenar por fecha
             const fechaA = a.FTAG05 ? new Date(String(19000000 + parseInt(a.FTAG05)).replace(
                 /(\d{4})(\d{2})(\d{2})/, "$1-$2-$3"
             )) : new Date(9999, 11, 31);
@@ -280,7 +313,6 @@ const mostrar = (asociados) => {
         let resultados = '';
         const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-        // Obtener fecha actual formateada
         const hoy = new Date();
         const dia = hoy.getDate().toString().padStart(2, '0');
         const mes = meses[hoy.getMonth()];
@@ -418,11 +450,18 @@ const mostrar = (asociados) => {
 
             resultados += `
             <tr>
-                <td class="text-center">${centroOperacion}</td>
-                <td>${Number(asociado.NNIT93).toLocaleString('es-CO')}</td>
-                <td>${asociado.DCTA93}</td>
-                <td class="text-center">${asociado.NCTA93}</td>
-                <td>${asociado.DNOM93}</td>
+                <td class="text-center text-sm">${centroOperacion}</td>
+                <td class="text-sm ">${Number(asociado.NNIT93).toLocaleString('es-CO')}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="d-flex flex-column justify-content-center">
+                            <h5 class="mb-0 text-sm">${asociado.DCTA93}</h5>
+                            <p class="text-sm text-danger fw-bold">${asociado.DDEP93}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-center text-sm">${asociado.NCTA93}</td>
+                <td class="text-sm">${asociado.DNOM93}</td>
                 <td class="text-center">
                     <div class="d-flex flex-column align-items-center">
                         ${scoreBadge}
@@ -908,6 +947,10 @@ const mostrar = (asociados) => {
         actualizarTabla();
     });
 
+    $('#filtroRecaudacion').off('change').on('change', function () {
+        actualizarTabla();
+    });
+
 
     // Botón para limpiar filtros
     $('#limpiarFiltros').off('click').on('click', function () {
@@ -921,6 +964,7 @@ const mostrar = (asociados) => {
         $('#filtroFechaFin').val("");
         $('#ordenFecha').val("asc");
         $('#filtroScore').val("");
+        $('#filtroRecaudacion').val("");
         $('#ordenValor').val("");
         actualizarBadgesAgencias();
         actualizarTabla();
@@ -1763,8 +1807,6 @@ function formatearHoraGeneral(hora, origen) {
 }
 
 
-
-
 function obtenerEstadoCivilHTML(codigo) {
     switch (codigo) {
         case 'C':
@@ -2193,16 +2235,17 @@ async function abrirModalGestion(cuenta) {
                                         <i class="fas fa-align-left me-2"></i>
                                         <p class="fw-bold text-dark">${gestion.gestion || 'Sin descripción registrada'}</p>
                                     </div>
-                                    <div class="metadatos-gestion">
-                                        <span class="badge bg-light text-dark">
-                                            <i class="fas fa-user-circle me-1"></i>
-                                            ${gestion.usuario_gestion || 'Usuario no registrado'}
-                                        </span>
+                                        <div class="metadatos-gestion">
+                                            <span class="badge bg-light text-dark">
+                                                <i class="fas fa-user-circle me-1"></i>
+                                                ${gestion.usuario_gestion && gestion.usuario_gestion.trim() !== ""
+                        ? gestion.usuario_gestion
+                        : (gestion.usuario_pregunta || 'Usuario no registrado')}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    `;
+                        </div>`;
             });
 
 

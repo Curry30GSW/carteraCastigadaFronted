@@ -213,6 +213,21 @@
                     </select>
                   </div>
 
+                  <div class="col-md-4">
+                    <label for="filtroRecaudacion" class="form-label text-dark">Recaudación</label>
+                    <select id="filtroRecaudacion" class="form-select">
+                      <option value="">Todos</option>
+                      <option value="LEY_INSOLVENCIA">Ley Insolvencia</option>
+                      <option value="SALDO_MINIMO">Saldo menor a Salario Mínimo</option>
+                      <option value="SIN_MEDIDA_CAUTELAR">Sin Medida Cautelar</option>
+                      <option value="CARTERA_PROBLEMA">CC - Problema</option>
+                      <option value="EMBARGO_BIENES">CC - Embargo Bien Mueble/Inmueble</option>
+                      <option value="EMBARGO_SECUESTRADO">CC - Embargo Bien Secuestrado</option>
+                      <option value="CC_REMATE">CC - Remate</option>
+                      <option value="SIN_AMNISTIA">CC - Sin Amnistía</option>
+                    </select>
+                  </div>
+
                   <!-- Botón borrar filtros -->
                   <div class="col-12 d-flex justify-content-end mt-2">
                     <button id="limpiarFiltros" class="btn btn-danger btn-icon">
@@ -229,6 +244,7 @@
                     </div>
                   </div>
                 </div>
+
               </div>
 
 

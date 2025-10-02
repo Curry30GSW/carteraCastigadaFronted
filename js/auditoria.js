@@ -135,6 +135,7 @@ const mostrar = (auditoria) => {
     $('#tablaAuditoria').DataTable({
         pageLength: 13,
         lengthMenu: [[13, 20, 45, -1], [13, 20, 45, "Todos"]],
+        order: [[0, "desc"]],
         language: {
             sProcessing: "Procesando...",
             sLengthMenu: "Mostrar _MENU_ registros",
